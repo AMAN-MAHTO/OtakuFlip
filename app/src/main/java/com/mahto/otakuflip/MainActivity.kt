@@ -23,15 +23,18 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.navigation.compose.rememberNavController
+import com.mahto.otakuflip.presentation.HomeScreen
 
 import com.mahto.otakuflip.presentation.OtakuFlipGameScreen
 import com.mahto.otakuflip.ui.theme.OtakuFlipTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        WindowCompat.setDecorFitsSystemWindows(window, false)
 
 
         setContent {
@@ -39,7 +42,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
                     Column (modifier = Modifier.padding(innerPadding)){
-                        OtakuFlipGameScreen()
+                        NavigationGraph(navHostController = rememberNavController(), startDestination = Screen.HomeScreen.route)
                     }
                 }
             }
