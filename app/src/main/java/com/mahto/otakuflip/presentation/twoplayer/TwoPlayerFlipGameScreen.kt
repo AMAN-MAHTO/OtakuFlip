@@ -1,5 +1,14 @@
 package com.mahto.otakuflip.presentation.twoplayer
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,6 +32,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -48,11 +61,13 @@ import com.mahto.otakuflip.utils.ImageBackground
 import kotlinx.coroutines.delay
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TwoPlayerFlipGameScreen(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
     viewModel: FlipGameViewModel = hiltViewModel(),
+    onCLickBack: () -> Unit = {}
 ) {
     val state = viewModel.state.collectAsState().value
     val currentPlayer = state.currentPlayer
@@ -60,11 +75,16 @@ fun TwoPlayerFlipGameScreen(
     val matchedCards = state.matchedCards
     val animeTheme = viewModel._animeTheme.collectAsState().value
     viewModel.numberOfPlayer(2)
-    LaunchedEffect(viewModel.gameMode.collectAsState().value) {
-        delay(300)
-        viewModel.startGame()
+    var cardsVisible by
+    remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(50)
+        cardsVisible = true
     }
 
+    LaunchedEffect(viewModel.gameMode.collectAsState().value) {
+        viewModel.startGame()
+    }
 
 
 
@@ -77,383 +97,387 @@ fun TwoPlayerFlipGameScreen(
                 .fillMaxSize()
 
         ) {
-
-
-            if (
-                matchedCards == viewModel.state.collectAsState().value.uniqueCards
-            ) {
-
-                ScreenHeader(
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    onClickBack = { navHostController.popBackStack() },
-                    enableBackButton = true
-                )
-                Column(
-                    Modifier.align(Alignment.Center),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Spacer(Modifier.height(1.dp))
-                    Column {
-
-
-                        Row(
-                            modifier
-                                .padding(horizontal = 16.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = Color.White,
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontFamily = mochiyPopOne, shadow = Shadow(
-                                        color = Color.Black.copy(alpha = 0.25f), offset =
-                                            Offset(0f, 5f), blurRadius = 3f
-                                    )
-                                ),
-                                text = "Winner"
-                            )
-                        }
-                        Row(
-
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                                .border(2.dp, Color.White, shape = MaterialTheme.shapes.medium)
-                                .background(
-                                    brush = Brush.linearGradient(
-                                        listOf(
-                                            Color(0xffFEB56A),
-                                            Color(0xffFF9D38)
-                                        )
-                                    ), shape = MaterialTheme.shapes.medium
-                                )
-                        ) {
-                            Text(
-                                text = if (playerScore[1]!!.toInt() > playerScore[2]!!.toInt()) "Player1" else "Player2",
-                                textAlign = TextAlign.Center,
-                                color = Color.White,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 24.dp, vertical = 16.dp)
-                                    .padding(bottom = 4.dp),
-                                style = MaterialTheme.typography.headlineLarge.copy(
-                                    fontFamily = mochiyPopOne,
-                                    shadow = Shadow(
-                                        color = Color.Black.copy(alpha = 0.25f), offset =
-                                            Offset(0f, 5f), blurRadius = 3f
-                                    )
-                                )
-                            )
-
-                        }
-                        Spacer(Modifier.height(16.dp))
-                        Row(
-                            modifier
-                                .padding(horizontal = 16.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = Color.White,
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontFamily = mochiyPopOne, shadow = Shadow(
-                                        color = Color.Black.copy(alpha = 0.25f), offset =
-                                            Offset(0f, 5f), blurRadius = 3f
-                                    )
-                                ),
-                                text = "Player1         " + playerScore[1]
-                            )
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        Row(
-                            modifier
-                                .padding(horizontal = 16.dp)
-                                .fillMaxWidth()
-                        ) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                color = Color.White,
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontFamily = mochiyPopOne, shadow = Shadow(
-                                        color = Color.Black.copy(alpha = 0.25f), offset =
-                                            Offset(0f, 5f), blurRadius = 3f
-                                    )
-                                ),
-                                text = "Player2         " + playerScore[2]
-                            )
-                        }
-
-
-                    }
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp)
-                        .align(Alignment.BottomCenter),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+//
+                if (
+                    matchedCards == viewModel.state.collectAsState().value.uniqueCards
                 ) {
 
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ScreenHeader(
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        onClickBack = { navHostController.popBackStack() },
+                        enableBackButton = true
+                    )
+                    Column(
+                        Modifier.fillMaxSize().align(Alignment.Center),
+                        verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Card(
-                            border = BorderStroke(2.dp, Color.White),
-                            shape = MaterialTheme.shapes.medium,
-                            elevation = CardDefaults.elevatedCardElevation(5.dp),
+                        Spacer(Modifier.height(1.dp))
+                        Column {
+
+                            Row(
+                                modifier
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.titleLarge.copy(
+                                        fontFamily = mochiyPopOne, shadow = Shadow(
+                                            color = Color.Black.copy(alpha = 0.25f), offset =
+                                                Offset(0f, 5f), blurRadius = 3f
+                                        )
+                                    ),
+                                    text = "Winner"
+                                )
+                            }
+                            Row(
+
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                                    .border(2.dp, Color.White, shape = MaterialTheme.shapes.medium)
+                                    .background(
+                                        brush = Brush.linearGradient(
+                                            listOf(
+                                                Color(0xffFEB56A),
+                                                Color(0xffFF9D38)
+                                            )
+                                        ), shape = MaterialTheme.shapes.medium
+                                    )
+                            ) {
+                                Text(
+                                    text = if (playerScore[1]!!.toInt() > playerScore[2]!!.toInt()) "Player1" else "Player2",
+                                    textAlign = TextAlign.Center,
+                                    color = Color.White,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                                        .padding(bottom = 4.dp),
+                                    style = MaterialTheme.typography.headlineLarge.copy(
+                                        fontFamily = mochiyPopOne,
+                                        shadow = Shadow(
+                                            color = Color.Black.copy(alpha = 0.25f), offset =
+                                                Offset(0f, 5f), blurRadius = 3f
+                                        )
+                                    )
+                                )
+
+                            }
+                            Spacer(Modifier.height(16.dp))
+                            Row(
+                                modifier
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.titleLarge.copy(
+                                        fontFamily = mochiyPopOne, shadow = Shadow(
+                                            color = Color.Black.copy(alpha = 0.25f), offset =
+                                                Offset(0f, 5f), blurRadius = 3f
+                                        )
+                                    ),
+                                    text = "Player1         " + playerScore[1]
+                                )
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            Row(
+                                modifier
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.titleLarge.copy(
+                                        fontFamily = mochiyPopOne, shadow = Shadow(
+                                            color = Color.Black.copy(alpha = 0.25f), offset =
+                                                Offset(0f, 5f), blurRadius = 3f
+                                        )
+                                    ),
+                                    text = "Player2         " + playerScore[2]
+                                )
+                            }
+
+
+                        }
+                        Column(
                             modifier = Modifier
-                                .size(70.dp)
-                                .padding(4.dp)
-                                .aspectRatio(1f)
-                                .graphicsLayer {
-                                    rotationZ = 2f
-                                }
-                                .clickable {
-                                    navHostController.navigate(Screen.HomeScreen.route){
-                                        popUpTo(0) { inclusive = true }
+                                .fillMaxWidth()
+                                .padding(24.dp)
+                                ,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Card(
+                                    border = BorderStroke(2.dp, Color.White),
+                                    shape = MaterialTheme.shapes.medium,
+                                    elevation = CardDefaults.elevatedCardElevation(5.dp),
+                                    modifier = Modifier
+                                        .size(70.dp)
+                                        .padding(4.dp)
+                                        .aspectRatio(1f)
+                                        .graphicsLayer {
+                                            rotationZ = 2f
+                                        }
+                                        .clickable {
+                                            navHostController.navigate(Screen.HomeScreen.route) {
+                                                popUpTo(0) { inclusive = true }
+                                            }
+                                        },
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color(0xffFF2E2E))
+                                    ) {
+
+                                        Icon(
+                                            painter = painterResource(R.drawable.home),
+                                            "",
+                                            Modifier
+                                                .size(36.dp)
+                                                .graphicsLayer { rotationZ = 2f },
+                                            tint = Color.White
+                                        )
                                     }
-                                },
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color(0xffFF2E2E))
-                            ) {
-
-                                Icon(
-                                    painter = painterResource(R.drawable.home),
-                                    "",
-                                    Modifier
-                                        .size(36.dp)
-                                        .graphicsLayer { rotationZ = 2f },
-                                    tint = Color.White
-                                )
-                            }
-                        }
-
-                        Card(
-                            border = BorderStroke(2.dp, Color.White),
-                            shape = MaterialTheme.shapes.medium,
-                            elevation = CardDefaults.elevatedCardElevation(5.dp),
-                            modifier = Modifier
-                                .size(70.dp)
-                                .padding(4.dp)
-                                .aspectRatio(1f)
-                                .graphicsLayer {
-                                    rotationZ = -2f
                                 }
-                                .clickable {
-                                    viewModel.startGame()
-                                },
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color(0xff25C247))
-                            ) {
 
-                                Icon(
-                                    painter = painterResource(R.drawable.play),
-                                    "",
-                                    Modifier
-                                        .size(36.dp)
-                                        .graphicsLayer { rotationZ = -2f },
-                                    tint = Color.White
-                                )
-                            }
-                        }
+                                Card(
+                                    border = BorderStroke(2.dp, Color.White),
+                                    shape = MaterialTheme.shapes.medium,
+                                    elevation = CardDefaults.elevatedCardElevation(5.dp),
+                                    modifier = Modifier
+                                        .size(70.dp)
+                                        .padding(4.dp)
+                                        .aspectRatio(1f)
+                                        .graphicsLayer {
+                                            rotationZ = -2f
+                                        }
+                                        .clickable {
+                                            viewModel.startGame()
+                                        },
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color(0xff25C247))
+                                    ) {
 
-                        Card(
-                            border = BorderStroke(2.dp, Color.White),
-                            shape = MaterialTheme.shapes.medium,
-                            elevation = CardDefaults.elevatedCardElevation(5.dp),
-                            modifier = Modifier
-                                .size(70.dp)
-                                .padding(4.dp)
-                                .aspectRatio(1f)
-                                .graphicsLayer {
-                                    rotationZ = 2f
+                                        Icon(
+                                            painter = painterResource(R.drawable.play),
+                                            "",
+                                            Modifier
+                                                .size(36.dp)
+                                                .graphicsLayer { rotationZ = -2f },
+                                            tint = Color.White
+                                        )
+                                    }
                                 }
-                                .clickable {
-                                    viewModel.onClickShop()
-                                },
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color(0xffFFB62E))
-                            ) {
 
-                                Icon(
-                                    painter = painterResource(R.drawable.shoping_bag),
-                                    "",
-                                    Modifier
-                                        .size(36.dp)
-                                        .graphicsLayer { rotationZ = 2f },
-                                    tint = Color.White
-                                )
+                                Card(
+                                    border = BorderStroke(2.dp, Color.White),
+                                    shape = MaterialTheme.shapes.medium,
+                                    elevation = CardDefaults.elevatedCardElevation(5.dp),
+                                    modifier = Modifier
+                                        .size(70.dp)
+                                        .padding(4.dp)
+                                        .aspectRatio(1f)
+                                        .graphicsLayer {
+                                            rotationZ = 2f
+                                        }
+                                        .clickable {
+                                            viewModel.onClickShop()
+                                        },
+                                ) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color(0xffFFB62E))
+                                    ) {
+
+                                        Icon(
+                                            painter = painterResource(R.drawable.shoping_bag),
+                                            "",
+                                            Modifier
+                                                .size(36.dp)
+                                                .graphicsLayer { rotationZ = 2f },
+                                            tint = Color.White
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
-                }
 
 
-            } else {
-
-                ScreenHeader(
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    onClickBack = { navHostController.popBackStack() },
-                    enableBackButton = true
-                )
 
 
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(top = 60.dp)
-                        .align(Alignment.Center)
-                ) {
-                    Row {
-                        Row(
+                } else {
 
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(8.dp)
-                                .shadow(
-                                    elevation = 8.dp,
-                                    shape = MaterialTheme.shapes.medium,
-                                    clip = false
-                                )
-                                .border(2.dp, Color.White, shape = MaterialTheme.shapes.medium)
-                                .background(
-                                    brush =
-                                        if (currentPlayer == 1) Brush.linearGradient(
-                                            listOf(
-                                                Color(
-                                                    0xFF6BCE5A
-                                                ), Color(0xFF38B428)
-                                            )
-                                        ) else
-                                            Brush.linearGradient(
-                                                listOf(
-                                                    Color(0xffD4D4D4),
-                                                    Color(0xff9D9D9C)
-                                                )
-                                            ), shape = MaterialTheme.shapes.medium
-                                )
-                        ) {
+                    ScreenHeader(
+                        modifier = Modifier.align(Alignment.TopCenter),
+                        onClickBack = onCLickBack,
+                        enableBackButton = true
+                    )
+
+
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(top = 60.dp)
+                            .align(Alignment.Center)
+                    ) {
+                        Row {
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
 
-                                ) {
-                                Text(
-                                    text = "Player1",
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontFamily = mochiyPopOne,
-                                        shadow = Shadow(
-                                            color = Color.Black.copy(alpha = 0.25f), offset =
-                                                Offset(0f, 5f), blurRadius = 3f
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp)
+                                    .shadow(
+                                        elevation = 8.dp,
+                                        shape = MaterialTheme.shapes.medium,
+                                        clip = false
+                                    )
+                                    .border(2.dp, Color.White, shape = MaterialTheme.shapes.medium)
+                                    .background(
+                                        brush =
+                                            if (currentPlayer == 1) Brush.linearGradient(
+                                                listOf(
+                                                    Color(
+                                                        0xFF6BCE5A
+                                                    ), Color(0xFF38B428)
+                                                )
+                                            ) else
+                                                Brush.linearGradient(
+                                                    listOf(
+                                                        Color(0xffD4D4D4),
+                                                        Color(0xff9D9D9C)
+                                                    )
+                                                ), shape = MaterialTheme.shapes.medium
+                                    )
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+
+                                    ) {
+                                    Text(
+                                        text = "P1",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontFamily = mochiyPopOne,
+                                            shadow = Shadow(
+                                                color = Color.Black.copy(alpha = 0.25f), offset =
+                                                    Offset(0f, 5f), blurRadius = 3f
+                                            )
                                         )
                                     )
-                                )
-                                Text(
-                                    text = "" + playerScore[1],
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        fontFamily = mochiyPopOne,
-                                        shadow = Shadow(
-                                            color = Color.Black.copy(alpha = 0.25f), offset =
-                                                Offset(0f, 5f), blurRadius = 3f
+                                    Text(
+                                        text = "" + playerScore[1],
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontFamily = mochiyPopOne,
+                                            shadow = Shadow(
+                                                color = Color.Black.copy(alpha = 0.25f), offset =
+                                                    Offset(0f, 5f), blurRadius = 3f
+                                            )
                                         )
                                     )
-                                )
+                                }
+
+
+                            }
+                            Row(
+
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp)
+                                    .shadow(
+                                        elevation = 8.dp,
+                                        shape = MaterialTheme.shapes.medium,
+                                        clip = false
+                                    )
+                                    .border(2.dp, Color.White, shape = MaterialTheme.shapes.medium)
+                                    .background(
+                                        brush =
+                                            if (currentPlayer == 2) Brush.linearGradient(
+                                                listOf(
+                                                    Color(
+                                                        0xFF6BCE5A
+                                                    ), Color(0xFF38B428)
+                                                )
+                                            ) else
+                                                Brush.linearGradient(
+                                                    listOf(
+                                                        Color(0xffD4D4D4),
+                                                        Color(0xff9D9D9C)
+                                                    )
+                                                ), shape = MaterialTheme.shapes.medium
+                                    )
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+
+                                    ) {
+                                    Text(
+                                        text = "P2",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontFamily = mochiyPopOne,
+                                            shadow = Shadow(
+                                                color = Color.Black.copy(alpha = 0.25f), offset =
+                                                    Offset(0f, 5f), blurRadius = 3f
+                                            )
+                                        )
+                                    )
+                                    Text(
+                                        text = "" + playerScore[2],
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontFamily = mochiyPopOne,
+                                            shadow = Shadow(
+                                                color = Color.Black.copy(alpha = 0.25f), offset =
+                                                    Offset(0f, 5f), blurRadius = 3f
+                                            )
+                                        )
+                                    )
+                                }
+
+
                             }
 
+                        }
+
+                        AnimatedVisibility(cardsVisible) {
+                            FlipGame(viewModel = viewModel)
 
                         }
-                        Row(
 
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(8.dp)
-                                .shadow(
-                                    elevation = 8.dp,
-                                    shape = MaterialTheme.shapes.medium,
-                                    clip = false
-                                )
-                                .border(2.dp, Color.White, shape = MaterialTheme.shapes.medium)
-                                .background(
-                                    brush =
-                                        if (currentPlayer == 2) Brush.linearGradient(
-                                            listOf(
-                                                Color(
-                                                    0xFF6BCE5A
-                                                ), Color(0xFF38B428)
-                                            )
-                                        ) else
-                                            Brush.linearGradient(
-                                                listOf(
-                                                    Color(0xffD4D4D4),
-                                                    Color(0xff9D9D9C)
-                                                )
-                                            ), shape = MaterialTheme.shapes.medium
-                                )
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-
-                                ) {
-                                Text(
-                                    text = "Player2",
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontFamily = mochiyPopOne,
-                                        shadow = Shadow(
-                                            color = Color.Black.copy(alpha = 0.25f), offset =
-                                                Offset(0f, 5f), blurRadius = 3f
-                                        )
-                                    )
-                                )
-                                Text(
-                                    text = "" + playerScore[2],
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        fontFamily = mochiyPopOne,
-                                        shadow = Shadow(
-                                            color = Color.Black.copy(alpha = 0.25f), offset =
-                                                Offset(0f, 5f), blurRadius = 3f
-                                        )
-                                    )
-                                )
-                            }
-
-
-                        }
 
                     }
-                    FlipGame()
-
-
                 }
-            }
+
 
 
         }

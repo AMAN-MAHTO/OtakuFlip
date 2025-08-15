@@ -71,7 +71,7 @@ fun ThemeSelectorScreen(
         AnimeThemeCardData(R.drawable.n28, Color(0xffFF9C9C), AnimeTheme.NARUTO_THEME),
         AnimeThemeCardData(R.drawable.op0, Color(0xff9CB0FF), AnimeTheme.ONE_PIECE_THEME),
         AnimeThemeCardData(R.drawable.ds1, Color(0xff9CFFAB), AnimeTheme.DEMON_SLAYER_THEME),
-        AnimeThemeCardData(R.drawable.w1, Color(0xffFFD19C), AnimeTheme.WIFU_THEME)
+//        AnimeThemeCardData(R.drawable.w1, Color(0xffFFD19C), AnimeTheme.WIFU_THEME)
     )
     val listGameMode = listOf(GAMEMODE.EASY_MODE, GAMEMODE.MEDIUM_MODE, GAMEMODE.HARD_MODE)
     Box(

@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -47,7 +48,7 @@ import com.mahto.otakuflip.presentation.FlipGame
 import com.mahto.otakuflip.presentation.FlipGameViewModel
 import com.mahto.otakuflip.presentation.ScreenHeader
 import com.mahto.otakuflip.ui.theme.mochiyPopOne
-import com.mahto.otakuflip.utils.AnimatedImageBackground
+import com.mahto.otakuflip.utils.AnimatedScoreText
 import com.mahto.otakuflip.utils.ImageBackground
 import kotlinx.coroutines.delay
 
@@ -56,17 +57,23 @@ fun QuickMatchFlipGameScreen(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
     viewModel: FlipGameViewModel = hiltViewModel(),
-    onClickBack: ()->Unit = {}
+    onClickBack: () -> Unit = {}
 ) {
-    val currentPlayer = viewModel.state.collectAsState().value.currentPlayer
-    val playerScore = viewModel.state.collectAsState().value.playerScore
-    val matchedCards = viewModel.state.collectAsState().value.matchedCards
+    val gameState = viewModel.state.collectAsState().value
+    val currentPlayer = gameState.currentPlayer
+    val playerScore = gameState.playerScore
     val animeTheme = viewModel._animeTheme.collectAsState().value
+    val gameMode = viewModel.gameMode.collectAsState().value
     var cardsVisible by
     remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         delay(50)
         cardsVisible = true
+    }
+
+    LaunchedEffect(gameMode) {
+        delay(100)
+        viewModel.startGame()
     }
 
 
@@ -76,7 +83,10 @@ fun QuickMatchFlipGameScreen(
 //        IconPatternBackground(animeTheme.bgColor, animeTheme.bgImg)
         ImageBackground(animeTheme.bgImgFull)
         Box(
-            Modifier.padding(horizontal = 12.dp, vertical = 12.dp).padding(top = 20.dp).fillMaxSize()
+            Modifier
+                .padding(horizontal = 12.dp, vertical = 12.dp)
+                .padding(top = 20.dp)
+                .fillMaxSize()
         ) {
             ScreenHeader(
                 modifier = Modifier.align(Alignment.TopCenter),
@@ -85,7 +95,7 @@ fun QuickMatchFlipGameScreen(
             )
 
             if (
-                matchedCards == viewModel.state.collectAsState().value.uniqueCards
+                gameState.matchedCards == gameState.uniqueCards
             ) {
                 LaunchedEffect(Unit) {
                     viewModel.onGameEnd()
@@ -95,7 +105,7 @@ fun QuickMatchFlipGameScreen(
                     Modifier
                         .padding(top = 60.dp)
                         .fillMaxSize()
-                            .align(Alignment.Center),
+                        .align(Alignment.Center),
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Spacer(Modifier.height(1.dp))
@@ -127,11 +137,16 @@ fun QuickMatchFlipGameScreen(
                                 .padding(top = 4.dp)
                                 .border(2.dp, Color.White, shape = MaterialTheme.shapes.medium)
                                 .background(
-                                    brush = Brush.linearGradient(listOf(Color(0xffFEB56A), Color(0xffFF9D38))), shape = MaterialTheme.shapes.medium
+                                    brush = Brush.linearGradient(
+                                        listOf(
+                                            Color(0xffFEB56A),
+                                            Color(0xffFF9D38)
+                                        )
+                                    ), shape = MaterialTheme.shapes.medium
                                 )
                         ) {
                             Text(
-                                text = "Score   " + playerScore[1],
+                                text = "Score   "+playerScore[1],
                                 textAlign = TextAlign.Center,
                                 color = Color.White,
                                 modifier = Modifier
@@ -163,7 +178,7 @@ fun QuickMatchFlipGameScreen(
                                             Offset(0f, 5f), blurRadius = 3f
                                     )
                                 ),
-                                text = "High Score "+viewModel._highScore.collectAsState().value
+                                text = "High Score " + viewModel._highScore.collectAsState().value
                             )
                         }
                         Spacer(Modifier.height(16.dp))
@@ -189,18 +204,30 @@ fun QuickMatchFlipGameScreen(
                                     .size(70.dp)
                                     .padding(4.dp)
                                     .aspectRatio(1f)
-                                    .graphicsLayer{
+                                    .graphicsLayer {
                                         rotationZ = 2f
                                     }
-                                    .clickable{
-                                        navHostController.navigate(Screen.HomeScreen.route){
+                                    .clickable {
+                                        navHostController.navigate(Screen.HomeScreen.route) {
                                             popUpTo(0) { inclusive = true }
                                         }
                                     },
-                            )  {
-                                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().background(Color(0xffFF2E2E))){
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Color(0xffFF2E2E))
+                                ) {
 
-                                    Icon(painter = painterResource(R.drawable.home),"",Modifier.size(36.dp).graphicsLayer{rotationZ = 2f}, tint = Color.White)
+                                    Icon(
+                                        painter = painterResource(R.drawable.home),
+                                        "",
+                                        Modifier
+                                            .size(36.dp)
+                                            .graphicsLayer { rotationZ = 2f },
+                                        tint = Color.White
+                                    )
                                 }
                             }
 
@@ -212,16 +239,28 @@ fun QuickMatchFlipGameScreen(
                                     .size(70.dp)
                                     .padding(4.dp)
                                     .aspectRatio(1f)
-                                    .graphicsLayer{
+                                    .graphicsLayer {
                                         rotationZ = -2f
                                     }
-                                    .clickable{
+                                    .clickable {
                                         viewModel.startGame()
                                     },
-                            )  {
-                                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().background(Color(0xff25C247))){
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Color(0xff25C247))
+                                ) {
 
-                                    Icon(painter = painterResource(R.drawable.play),"",Modifier.size(36.dp).graphicsLayer{rotationZ = -2f}, tint = Color.White)
+                                    Icon(
+                                        painter = painterResource(R.drawable.play),
+                                        "",
+                                        Modifier
+                                            .size(36.dp)
+                                            .graphicsLayer { rotationZ = -2f },
+                                        tint = Color.White
+                                    )
                                 }
                             }
 
@@ -233,24 +272,34 @@ fun QuickMatchFlipGameScreen(
                                     .size(70.dp)
                                     .padding(4.dp)
                                     .aspectRatio(1f)
-                                    .graphicsLayer{
+                                    .graphicsLayer {
                                         rotationZ = 2f
                                     }
-                                    .clickable{
+                                    .clickable {
                                         viewModel.onClickShop()
                                     },
-                            )  {
-                                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().background(Color(0xffFFB62E))){
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(Color(0xffFFB62E))
+                                ) {
 
-                                    Icon(painter = painterResource(R.drawable.shoping_bag),"",Modifier.size(36.dp).graphicsLayer{rotationZ = 2f}, tint = Color.White)
+                                    Icon(
+                                        painter = painterResource(R.drawable.shoping_bag),
+                                        "",
+                                        Modifier
+                                            .size(36.dp)
+                                            .graphicsLayer { rotationZ = 2f },
+                                        tint = Color.White
+                                    )
                                 }
                             }
                         }
                     }
 
                 }
-
-
 
 
             } else {
@@ -261,64 +310,104 @@ fun QuickMatchFlipGameScreen(
                         .align(Alignment.Center)
                 ) {
 
-                        Text(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                            textAlign = TextAlign.End,
-                            text = "High Score "+viewModel._highScore.collectAsState().value, style = MaterialTheme.typography.bodyLarge.copy(
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        textAlign = TextAlign.End,
+                        text = "High Score " + viewModel._highScore.collectAsState().value,
+                        style = MaterialTheme.typography.bodyLarge.copy(
                             fontFamily = mochiyPopOne,
                             shadow = Shadow(
                                 color = Color.Black.copy(alpha = 0.25f), offset =
                                     Offset(0f, 5f), blurRadius = 3f
                             )
-                        ))
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
+                        )
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+
+                    ) {
+                        Box(
+                            Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
-                                .shadow(
-                                    elevation = 8.dp,
-                                    shape = MaterialTheme.shapes.medium,
-                                    clip = false
-                                )
-                                .border(2.dp, Color.White, shape = MaterialTheme.shapes.medium)
-                                .background(
-                                    if (currentPlayer == 1) Color(0xfff24841) else Color(
-                                        0xffD4D4D4
-                                    ), shape = MaterialTheme.shapes.medium
-                                )
 
                         ) {
-                            Text(
-                                text = "Time: ${formatTime(viewModel.state.collectAsState().value.timeElapsed)}",
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontFamily = mochiyPopOne,
-                                    shadow = Shadow(
-                                        color = Color.Black.copy(alpha = 0.25f), offset =
-                                            Offset(0f, 5f), blurRadius = 3f
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                                    .shadow(
+                                        elevation = 8.dp,
+                                        shape = MaterialTheme.shapes.medium,
+                                        clip = false
                                     )
-                                )
-                            )
-                            Text(
-                                text = "" + playerScore[1],
-                                color = Color.White,
+                                    .border(2.dp, Color.White, shape = MaterialTheme.shapes.medium)
+                                    .background(
+                                        if (currentPlayer == 1) Color(0xfff24841) else Color(
+                                            0xffD4D4D4
+                                        ), shape = MaterialTheme.shapes.medium
+                                    )
 
-                                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontFamily = mochiyPopOne,
-                                    shadow = Shadow(
-                                        color = Color.Black.copy(alpha = 0.25f), offset =
-                                            Offset(0f, 5f), blurRadius = 3f
+                            ) {
+                                Text(
+                                    text = "Time: ${formatTime(viewModel.state.collectAsState().value.timeElapsed)}",
+                                    color = Color.White,
+                                    modifier = Modifier.padding(
+                                        horizontal = 24.dp,
+                                        vertical = 4.dp
+                                    ),
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontFamily = mochiyPopOne,
+                                        shadow = Shadow(
+                                            color = Color.Black.copy(alpha = 0.25f), offset =
+                                                Offset(0f, 5f), blurRadius = 3f
+                                        )
                                     )
                                 )
+                                Text(
+                                    text = "" + playerScore[1],
+                                    color = Color.White,
+
+
+                                    modifier = Modifier
+                                        .alpha(0f)
+                                        .padding(horizontal = 24.dp, vertical = 8.dp),
+                                    style = MaterialTheme.typography.titleLarge.copy(
+                                        fontFamily = mochiyPopOne,
+                                        shadow = Shadow(
+                                            color = Color.Black.copy(alpha = 0.25f), offset =
+                                                Offset(0f, 5f), blurRadius = 3f
+                                        )
+                                    )
+                                )
+                            }
+                            AnimatedScoreText(
+                                score = playerScore[1],
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .padding(8.dp)
                             )
+
                         }
+                        Column(
+                            Modifier
+                                .fillMaxSize()
+                                .align(Alignment.Center),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            AnimatedVisibility(cardsVisible) {
+                                FlipGame(
+                                    viewModel = viewModel,
 
-                    Spacer(Modifier.height(16.dp))
-                    AnimatedVisibility(cardsVisible) {
-                        FlipGame(viewModel = viewModel)
+                                )
+
+                            }
+                        }
 
                     }
 

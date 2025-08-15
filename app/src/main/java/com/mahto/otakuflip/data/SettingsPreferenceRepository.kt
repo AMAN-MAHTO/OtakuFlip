@@ -41,7 +41,7 @@ sealed class AnimeTheme(
             R.drawable.n23, R.drawable.n24, R.drawable.n25, R.drawable.n26,
             R.drawable.n27, R.drawable.n28, R.drawable.n29, R.drawable.n30,
             R.drawable.n31, R.drawable.n32, R.drawable.n33, R.drawable.n34,
-            R.drawable.ds1, R.drawable.op1, R.drawable.op0, R.drawable.w1
+
         ),
         bgImgFull = R.drawable.bgnf
     )
@@ -49,8 +49,8 @@ sealed class AnimeTheme(
     object ONE_PIECE_THEME : AnimeTheme(
         "one_piece_theme", listOf(
             R.drawable.op0, R.drawable.op3, R.drawable.op4, R.drawable.op5,
-            R.drawable.op6, R.drawable.op7, R.drawable.op8, R.drawable.op9, R.drawable.op10,
-            R.drawable.op11, R.drawable.op12, R.drawable.op13, R.drawable.op14, R.drawable.op15,
+            R.drawable.op6, R.drawable.op7, R.drawable.op8, R.drawable.op9,
+            R.drawable.op13,  R.drawable.op15,
             R.drawable.op16, R.drawable.op17, R.drawable.op18, R.drawable.op19, R.drawable.op20,
             R.drawable.op21, R.drawable.op22, R.drawable.op23, R.drawable.op24, R.drawable.op25,
             R.drawable.op26, R.drawable.op27, R.drawable.op28, R.drawable.op29, R.drawable.op30,
@@ -65,20 +65,20 @@ sealed class AnimeTheme(
         bgImgFull = R.drawable.opbgf3
     )
 
-    object WIFU_THEME : AnimeTheme(
-        "wifu_theme", listOf(
-            R.drawable.n1, R.drawable.n2, R.drawable.n4, R.drawable.n5,
-            R.drawable.n6, R.drawable.n7, R.drawable.n8, R.drawable.n9,
-            R.drawable.n10, R.drawable.n11, R.drawable.n12, R.drawable.n13,
-            R.drawable.n15, R.drawable.n16, R.drawable.n17, R.drawable.n18,
-            R.drawable.n19, R.drawable.n20, R.drawable.n21, R.drawable.n22,
-            R.drawable.n23, R.drawable.n24, R.drawable.n25, R.drawable.n26,
-            R.drawable.n27, R.drawable.n28, R.drawable.n29, R.drawable.n30,
-            R.drawable.n31, R.drawable.n32, R.drawable.n33, R.drawable.n34,
-            R.drawable.ds1, R.drawable.op1, R.drawable.op0, R.drawable.w1
-        ),
-        bgImgFull = R.drawable.bgnf
-    )
+//    object WIFU_THEME : AnimeTheme(
+//        "wifu_theme", listOf(
+//            R.drawable.n1, R.drawable.n2, R.drawable.n4, R.drawable.n5,
+//            R.drawable.n6, R.drawable.n7, R.drawable.n8, R.drawable.n9,
+//            R.drawable.n10, R.drawable.n11, R.drawable.n12, R.drawable.n13,
+//            R.drawable.n15, R.drawable.n16, R.drawable.n17, R.drawable.n18,
+//            R.drawable.n19, R.drawable.n20, R.drawable.n21, R.drawable.n22,
+//            R.drawable.n23, R.drawable.n24, R.drawable.n25, R.drawable.n26,
+//            R.drawable.n27, R.drawable.n28, R.drawable.n29, R.drawable.n30,
+//            R.drawable.n31, R.drawable.n32, R.drawable.n33, R.drawable.n34,
+//            R.drawable.ds1, R.drawable.op1, R.drawable.op0, R.drawable.w1
+//        ),
+//        bgImgFull = R.drawable.bgnf
+//    )
 
     object DEMON_SLAYER_THEME : AnimeTheme(
         "demon_slayer_theme",
@@ -101,7 +101,7 @@ sealed class AnimeTheme(
             "naruto_theme"-> AnimeTheme.NARUTO_THEME
             "one_piece_theme"-> AnimeTheme.ONE_PIECE_THEME
             "demon_slayer_theme"-> AnimeTheme.DEMON_SLAYER_THEME
-            "wifu_theme"-> AnimeTheme.WIFU_THEME
+//            "wifu_theme"-> AnimeTheme.WIFU_THEME
             else -> AnimeTheme.NARUTO_THEME
         }
     }

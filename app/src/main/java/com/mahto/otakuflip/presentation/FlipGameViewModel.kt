@@ -50,12 +50,12 @@ class FlipGameViewModel @Inject constructor(
     val comobo = _combo
      val _animeTheme: StateFlow<AnimeTheme> = repository.animeTheme.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
+        started = SharingStarted.WhileSubscribed(5000L),
         initialValue = AnimeTheme.NARUTO_THEME
     )
      val gameMode: StateFlow<GAMEMODE> = repository.selectedMode.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(),
+        started = SharingStarted.WhileSubscribed(5000L),
         initialValue = GAMEMODE.EASY_MODE
     )
 
@@ -67,7 +67,7 @@ class FlipGameViewModel @Inject constructor(
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
+            started = SharingStarted.WhileSubscribed(5000L),
             initialValue = 0 // fallback if highScore not yet loaded
         )
 
@@ -89,8 +89,6 @@ class FlipGameViewModel @Inject constructor(
         restartTimer()
         firstCLick.value = false
         updateHighScore()
-
-
     }
     fun updateHighScore(){
         if(_numberOfPlayers.value == 1){
@@ -127,6 +125,10 @@ class FlipGameViewModel @Inject constructor(
     }
 
     fun startGame() {
+        firstCLick.value = false
+        timerJob?.cancel()
+        restartTimer()
+
         val images = _animeTheme.value.images
 
         val randomImages = images.shuffled().take(gameMode.value.gridSize.uniqueCardsNumber)

@@ -310,7 +310,6 @@ fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel = hiltV
     ) {
         itemsIndexed(cards) {index, card ->
 
-
                 val rotation = animateFloatAsState(
                     targetValue = if (card.isFlipped) 180f else 0f,
                     animationSpec = tween(400),

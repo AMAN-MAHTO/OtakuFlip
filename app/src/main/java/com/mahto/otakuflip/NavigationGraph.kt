@@ -43,15 +43,10 @@ fun NavigationGraph(
 ) {
     val animeTheme = themeSelectorVM.animeTheme.collectAsState().value
     val animeTheme2 = flipGameViewModel._animeTheme.collectAsState().value
-    LaunchedEffect(Unit) {
-        flipGameViewModel.startGame()
-    }
-    LaunchedEffect(flipGameViewModel.gameMode.collectAsState().value) {
-        flipGameViewModel.startGame()
-    }
+
+
     NavHost(navHostController, startDestination = startDestination,
-        enterTransition = { fadeIn(animationSpec = tween(700)) },
-        exitTransition = { fadeOut(animationSpec = tween(700)) },
+
      ) {
         composable(
             route = Screen.HomeScreen.route
@@ -70,7 +65,15 @@ fun NavigationGraph(
         }
 
         composable(route = Screen.OtakuFlipScreen.route) {
-            TwoPlayerFlipGameScreen(navHostController = navHostController,)
+            TwoPlayerFlipGameScreen(navHostController = navHostController,
+                onCLickBack = {
+                    navHostController.navigate(Screen.HomeScreen.route) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
+
+                })
         }
         composable(route = Screen.QuickModeScreen.route) {
             QuickMatchFlipGameScreen(
