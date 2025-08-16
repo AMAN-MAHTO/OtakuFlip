@@ -59,13 +59,13 @@ import kotlin.math.sin
 
 @Preview
 @Composable
-fun GameModeBar() {
+fun GameModeBar(
+    modifier: Modifier  = Modifier,
+) {
     val currentMode = remember { mutableStateOf<GAMEMODE>(GAMEMODE.MEDIUM_MODE) }
     val sliderState = remember { mutableStateOf(0.5f) }
     Column(
-        Modifier
-            .fillMaxSize()
-            .padding(32.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(){
@@ -78,7 +78,7 @@ fun GameModeBar() {
                 ).alpha(1 - sliderState.value*2),
                 text = "EASY", color = Color.White,
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.headlineLarge
                     .copy(
                         fontFamily = mochiyPopOne,
                         shadow = Shadow(
@@ -102,7 +102,7 @@ fun GameModeBar() {
                 text = "MEDIUM", color = Color.White,
                 textAlign = TextAlign.Center,
 
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.headlineLarge
                     .copy(
                         fontFamily = mochiyPopOne,
                         shadow = Shadow(
@@ -120,7 +120,7 @@ fun GameModeBar() {
                 text = "HARD", color = Color.White,
                 textAlign = TextAlign.Center,
 
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.headlineLarge
                     .copy(
                         fontFamily = mochiyPopOne,
                         shadow = Shadow(
@@ -160,8 +160,8 @@ fun CustomSlider2(
     progress: Float, // 0f..1f
     onChange: (Float) -> Unit
 ) {
-    val trackHeight = 24.dp
-    val thumbRadius = 18.dp
+    val trackHeight = 32.dp
+    val thumbRadius = 15.dp
 
     var isPressed by remember { mutableStateOf(false) }
 
@@ -180,7 +180,6 @@ fun CustomSlider2(
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp)
-
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { offset ->
@@ -201,10 +200,10 @@ fun CustomSlider2(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val borderWidth = 10f
-            val recWidth = size.width - borderWidth * 2
+            val recWidth = size.width
             // Track
             drawRoundRect(
-                topLeft = Offset(10f, 0f),
+//                topLeft = Offset(10f, 0f),
 
                 color = Color.LightGray,
                 size = Size(recWidth, trackHeight.toPx()),
@@ -213,7 +212,7 @@ fun CustomSlider2(
 
             // Progress
             drawRoundRect(
-                topLeft = Offset(10f, 0f),
+//                topLeft = Offset(10f, 0f),
 
                 color = Color(
                     red = (if (progress < 0.5) 2 * progress else 1f).coerceIn(0f, 0.9f),
@@ -224,7 +223,7 @@ fun CustomSlider2(
                 cornerRadius = CornerRadius(trackHeight.toPx() / 2)
             )
             drawRoundRect(
-                topLeft = Offset(10f, 0f),
+//                topLeft = Offset(10f, 0f),
                 color = Color.White,
                 size = Size(recWidth, trackHeight.toPx()),
                 style = Stroke(width = 10f),

@@ -19,6 +19,7 @@ import com.mahto.otakuflip.presentation.HomeScreen
 import com.mahto.otakuflip.presentation.twoplayer.TwoPlayerFlipGameScreen
 import com.mahto.otakuflip.presentation.ThemeSelector.ThemeSelectorScreen
 import com.mahto.otakuflip.presentation.ThemeSelector.ThemeSelectorVM
+import com.mahto.otakuflip.presentation.home.HomeScreen2
 import com.mahto.otakuflip.presentation.quickmatch.QuickMatchFlipGameScreen
 import kotlinx.coroutines.delay
 
@@ -48,16 +49,32 @@ fun NavigationGraph(
     NavHost(navHostController, startDestination = startDestination,
 
      ) {
+//        composable(
+//            route = Screen.HomeScreen.route
+//        ) {
+//            HomeScreen(
+//                navHostController = navHostController,
+//                onClick2Player = {
+//                    navHostController.navigate(Screen.ThemeSelectorScreen.createRoute("2p"))
+//                },
+//                onClickQuickMatch = {
+//                    navHostController.navigate(Screen.ThemeSelectorScreen.createRoute("quick"))
+//                },
+//                onClickSettingIcon = {}
+//            )
+//
+//        }
+
         composable(
             route = Screen.HomeScreen.route
         ) {
-            HomeScreen(
-                navHostController = navHostController,
+            HomeScreen2(
+//                navHostController = navHostController,
                 onClick2Player = {
-                    navHostController.navigate(Screen.ThemeSelectorScreen.createRoute("2p"))
+                    navHostController.navigate(Screen.OtakuFlipScreen.route)
                 },
                 onClickQuickMatch = {
-                    navHostController.navigate(Screen.ThemeSelectorScreen.createRoute("quick"))
+                    navHostController.navigate(Screen.QuickModeScreen.route)
                 },
                 onClickSettingIcon = {}
             )
