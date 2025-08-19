@@ -1,9 +1,8 @@
-package com.mahto.otakuflip.presentation
+package com.mahto.otakuflip.viewmodels
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mahto.otakuflip.R
 import com.mahto.otakuflip.data.AnimeTheme
 import com.mahto.otakuflip.data.GAMEMODE
 import com.mahto.otakuflip.data.GridSize
@@ -50,24 +49,25 @@ class FlipGameViewModel @Inject constructor(
     val comobo = _combo
      val _animeTheme: StateFlow<AnimeTheme> = repository.animeTheme.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
+        started = SharingStarted.Eagerly,
         initialValue = AnimeTheme.NARUTO_THEME
     )
+
      val gameMode: StateFlow<GAMEMODE> = repository.selectedMode.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
+        started = SharingStarted.Eagerly,
         initialValue = GAMEMODE.EASY_MODE
     )
 
     val _highScore = gameMode
-        .filterNotNull() // Optional if gameMode could be null
+        .filterNotNull()
         .distinctUntilChanged()
         .flatMapLatest { mode ->
             repository.highScore(mode)
         }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
+            started = SharingStarted.Eagerly,
             initialValue = 0 // fallback if highScore not yet loaded
         )
 
@@ -124,15 +124,14 @@ class FlipGameViewModel @Inject constructor(
         timerJob?.cancel()
     }
 
+
     fun startGame() {
         firstCLick.value = false
         timerJob?.cancel()
         restartTimer()
-
         val images = _animeTheme.value.images
-
         val randomImages = images.shuffled().take(gameMode.value.gridSize.uniqueCardsNumber)
-        val cards = (randomImages + randomImages).shuffled().mapIndexed { index, image ->
+        val cards  = (randomImages + randomImages).shuffled().mapIndexed { index, image ->
             Card(id = index, imageId = image)
         }
 

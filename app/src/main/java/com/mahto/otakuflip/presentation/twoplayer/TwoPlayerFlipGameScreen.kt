@@ -1,14 +1,7 @@
 package com.mahto.otakuflip.presentation.twoplayer
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -52,11 +45,10 @@ import androidx.navigation.NavHostController
 import com.mahto.otakuflip.R
 import com.mahto.otakuflip.Screen
 import com.mahto.otakuflip.presentation.FlipGame
-import com.mahto.otakuflip.presentation.FlipGameViewModel
+import com.mahto.otakuflip.viewmodels.FlipGameViewModel
 import com.mahto.otakuflip.presentation.ScreenHeader
 
 import com.mahto.otakuflip.ui.theme.mochiyPopOne
-import com.mahto.otakuflip.utils.AnimatedImageBackground
 import com.mahto.otakuflip.utils.ImageBackground
 import kotlinx.coroutines.delay
 
@@ -78,13 +70,13 @@ fun TwoPlayerFlipGameScreen(
     var cardsVisible by
     remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(50)
+        viewModel.startGame()
         cardsVisible = true
     }
-
-    LaunchedEffect(viewModel.gameMode.collectAsState().value) {
-        viewModel.startGame()
-    }
+//
+//    LaunchedEffect(viewModel.gameMode.collectAsState().value) {
+//        viewModel.startGame()
+//    }
 
 
 

@@ -45,7 +45,7 @@ import androidx.navigation.NavHostController
 import com.mahto.otakuflip.R
 import com.mahto.otakuflip.Screen
 import com.mahto.otakuflip.presentation.FlipGame
-import com.mahto.otakuflip.presentation.FlipGameViewModel
+import com.mahto.otakuflip.viewmodels.FlipGameViewModel
 import com.mahto.otakuflip.presentation.ScreenHeader
 import com.mahto.otakuflip.ui.theme.mochiyPopOne
 import com.mahto.otakuflip.utils.AnimatedScoreText
@@ -67,14 +67,14 @@ fun QuickMatchFlipGameScreen(
     var cardsVisible by
     remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(50)
+        viewModel.startGame()
         cardsVisible = true
     }
 
-    LaunchedEffect(gameMode) {
-        delay(100)
-        viewModel.startGame()
-    }
+//    LaunchedEffect(gameMode) {
+//        delay(100)
+//        viewModel.startGame()
+//    }
 
 
 

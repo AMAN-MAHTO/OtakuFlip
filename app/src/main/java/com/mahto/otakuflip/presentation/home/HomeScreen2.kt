@@ -1,5 +1,10 @@
 package com.mahto.otakuflip.presentation.home
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,30 +27,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.shadow
 
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mahto.otakuflip.R
-import com.mahto.otakuflip.Screen
 import com.mahto.otakuflip.data.AnimeTheme
 import com.mahto.otakuflip.data.GAMEMODE
 import com.mahto.otakuflip.presentation.ThemeSelector.AnimeThemeCardData
 import com.mahto.otakuflip.ui.theme.mochiyPopOne
 import com.mahto.otakuflip.utils.AnimatedIconButton
-import com.mahto.otakuflip.utils.IconPatternBackground
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -54,11 +53,10 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.mahto.otakuflip.presentation.ThemeSelector.ThemeSelectorVM
-import com.mahto.otakuflip.ui.theme.mochiyPopOne
-import com.mahto.otakuflip.utils.PatternBg2
+import com.mahto.otakuflip.utils.ANimatedCardButton
+import com.mahto.otakuflip.viewmodels.ThemeSelectorVM
+import com.mahto.otakuflip.utils.GameModeBar
 
 private val defaultShadow = Shadow(
     color = Color.Black.copy(alpha = 0.30f),
@@ -106,9 +104,15 @@ fun HomeScreen2(
 
     val listGameMode = listOf(GAMEMODE.EASY_MODE, GAMEMODE.MEDIUM_MODE, GAMEMODE.HARD_MODE)
 
+
     Box(Modifier.fillMaxSize()) {
-        Image(painter = painterResource(animeTheme.bgImgFull), contentDescription = "bg", contentScale = ContentScale.FillBounds)
-//        IconPatternBackground(Color(0xFF3F9C69),R.drawable.bg)
+        Crossfade(
+            targetState = animeTheme.bgImgFull,
+            animationSpec = tween(100)
+        ) {
+            Image(painter = painterResource(it), contentDescription = "bg", contentScale = ContentScale.FillBounds)
+
+        }
         Box(
             Modifier
                 .padding(horizontal = 16.dp, vertical = 32.dp)
@@ -150,59 +154,75 @@ fun HomeScreen2(
                 LazyRow(
                     Modifier
                         .fillMaxWidth()
-                        .height(90.dp),
+                        .height(120.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     itemsIndexed(listAnimeTheme) { index, item ->
-                        Card(
-                            border = BorderStroke(
-                                2.dp,
-                                Color.White
+                        val animatedSize by animateDpAsState(
+                            targetValue = if(animeTheme == item.animeTheme) 80.dp else 70.dp,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
                             ),
-                            shape = MaterialTheme.shapes.medium,
-                            elevation = CardDefaults.elevatedCardElevation(5.dp),
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .size(if (animeTheme == item.animeTheme) 80.dp else 70.dp)
-                                .aspectRatio(0.95f)
-                                .graphicsLayer(
-                                    rotationZ = if (index % 2 == 0) 2f else -2f
-                                )
-                                .shadow(
-                                    elevation = if (animeTheme == item.animeTheme) 8.dp else 4.dp,
-                                    shape = MaterialTheme.shapes.medium,
-                                    clip = false
-                                )
-                                .clickable {
-                                    viewModel.setAnimeTheme(item.animeTheme)
+                        )
 
-                                },
-                        ) {
-                            Column(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(item.bgColor),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
+                        Column (
+                        ){
+                            Card(
+                                border =
+                                    BorderStroke(
+                                        2.dp,
+                                        Color(0xFFFAFAFA)
+                                    ),
+                                shape = MaterialTheme.shapes.medium,
+                                elevation = CardDefaults.elevatedCardElevation(5.dp),
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .size(animatedSize)
+                                    .aspectRatio(0.95f)
+                                    .graphicsLayer(
+                                        rotationZ = if (index % 2 == 0) 2f else -2f,
+
+//                                        scaleX = if (animeTheme == item.animeTheme) shineOffset else 1f,
+//                                        scaleY =  if (animeTheme == item.animeTheme) shineOffset else 1f,
+                                    )
+                                    .shadow(
+                                        elevation = if (animeTheme == item.animeTheme) 8.dp else 4.dp,
+                                        shape = MaterialTheme.shapes.medium,
+                                        clip = false
+                                    )
+                                    .clickable {
+                                        viewModel.setAnimeTheme(item.animeTheme)
+                                    },
                             ) {
-                                Image(
-                                    painter = painterResource(item.imageId),
-                                    contentDescription = "",
-                                    modifier = Modifier.padding(4.dp)
-                                )
+                                Column(
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(item.bgColor),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Image(
+                                        painter = painterResource(item.imageId),
+                                        contentDescription = "",
+                                        modifier = Modifier.padding(4.dp)
+                                    )
+                                }
                             }
+
                         }
+
                     }
                 }
 
                 Spacer(Modifier.height(48.dp))
 
-                GameModeBar(Modifier.padding(horizontal = 32.dp))
+                GameModeBar(modifier = Modifier.padding(horizontal = 32.dp), currentMode =  selectedMode, onModeChange = {viewModel.setGameMode(it)})
                 Spacer(Modifier.height(8.dp))
 
                 AppText(
-                    text = "HighScore: 00032",
+                    text = "HighScore: ${viewModel._highScore.collectAsState().value}",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Start,
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
@@ -211,16 +231,9 @@ fun HomeScreen2(
                 Spacer(Modifier.height(32.dp))
                 Column {
                     Spacer(Modifier.height(8.dp))
-                    Card(
-                        shape = MaterialTheme.shapes.large,
-                        colors = CardDefaults.cardColors(containerColor = Color(0xffF99D32)),
-                        modifier = Modifier
-                            .padding(horizontal = 32.dp)
-                            .fillMaxWidth()
-                            .shadow(10.dp, MaterialTheme.shapes.medium, false)
-                            .clickable { onClickQuickMatch() },
-                        border = BorderStroke(2.dp, Color.White),
-                        elevation = CardDefaults.elevatedCardElevation(5.dp),
+                    ANimatedCardButton (
+                        onClick = onClickQuickMatch,
+                        pressedScale = 0.95f
                     ) {
                         AppText(
                             "Quick Match",
@@ -229,23 +242,14 @@ fun HomeScreen2(
                         )
                     }
                     Spacer(Modifier.height(24.dp))
-                    Card(
-                        shape = MaterialTheme.shapes.large,
-                        colors = CardDefaults.cardColors(containerColor = Color(0xffF99D32)),
-                        modifier = Modifier
-                            .padding(horizontal = 32.dp)
-                            .fillMaxWidth()
-                            .shadow(10.dp, MaterialTheme.shapes.medium, false)
-                            .clickable { onClick2Player() },
-                        border = BorderStroke(2.dp, Color.White),
-                        elevation = CardDefaults.elevatedCardElevation(5.dp),
-                    ) {
+                    ANimatedCardButton(onClick = onClick2Player, pressedScale = 0.95f) {
                         AppText(
                             "Friend",
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.padding(16.dp).fillMaxWidth()
                         )
                     }
+
                 }
             }
         }

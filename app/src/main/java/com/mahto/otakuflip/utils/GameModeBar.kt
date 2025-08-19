@@ -1,14 +1,11 @@
-package com.mahto.otakuflip.presentation.home
+package com.mahto.otakuflip.utils
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -16,16 +13,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import com.mahto.otakuflip.data.GAMEMODE
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -34,36 +24,32 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import com.mahto.otakuflip.ui.theme.mochiyPopOne
 import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.sp
 import kotlin.math.cos
 import kotlin.math.sin
 
 
-@Preview
 @Composable
 fun GameModeBar(
+    currentMode: GAMEMODE,
+    onModeChange: (GAMEMODE)-> Unit,
     modifier: Modifier  = Modifier,
 ) {
-    val currentMode = remember { mutableStateOf<GAMEMODE>(GAMEMODE.MEDIUM_MODE) }
-    val sliderState = remember { mutableStateOf(0.5f) }
+    val sliderState = remember{ mutableStateOf(when(currentMode){
+        GAMEMODE.EASY_MODE -> 0.0f
+        GAMEMODE.MEDIUM_MODE -> 0.5f
+        GAMEMODE.HARD_MODE -> 1f
+    }) }
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -142,10 +128,10 @@ fun GameModeBar(
                 progress = sliderState.value,
                 onChange = { value ->
                     sliderState.value = value
-                    currentMode.value = when (value) {
-                        in 0f..0.4f -> GAMEMODE.EASY_MODE
-                        in 0.4f..0.6f -> GAMEMODE.MEDIUM_MODE
-                        else -> GAMEMODE.HARD_MODE
+                    when (value) {
+                        in 0f..0.4f -> onModeChange( GAMEMODE.EASY_MODE)
+                        in 0.4f..0.6f -> onModeChange(GAMEMODE.MEDIUM_MODE)
+                        else -> onModeChange(GAMEMODE.HARD_MODE)
                     }
                 },
             )

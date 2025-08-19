@@ -1,24 +1,19 @@
 package com.mahto.otakuflip
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.mahto.otakuflip.presentation.FlipGameViewModel
-import com.mahto.otakuflip.presentation.HomeScreen
+import com.mahto.otakuflip.viewmodels.FlipGameViewModel
 import com.mahto.otakuflip.presentation.twoplayer.TwoPlayerFlipGameScreen
 import com.mahto.otakuflip.presentation.ThemeSelector.ThemeSelectorScreen
-import com.mahto.otakuflip.presentation.ThemeSelector.ThemeSelectorVM
+import com.mahto.otakuflip.viewmodels.ThemeSelectorVM
 import com.mahto.otakuflip.presentation.home.HomeScreen2
 import com.mahto.otakuflip.presentation.quickmatch.QuickMatchFlipGameScreen
 import kotlinx.coroutines.delay
@@ -43,27 +38,15 @@ fun NavigationGraph(
 
 ) {
     val animeTheme = themeSelectorVM.animeTheme.collectAsState().value
-    val animeTheme2 = flipGameViewModel._animeTheme.collectAsState().value
+    val selectedGameMode = themeSelectorVM.selectedMode.collectAsState().value
+//    LaunchedEffect(selectedGameMode) {
+//        delay(100)
+//        flipGameViewModel.startGame()
+//    }
 
-
-    NavHost(navHostController, startDestination = startDestination,
-
+    NavHost(navHostController,
+        startDestination = startDestination,
      ) {
-//        composable(
-//            route = Screen.HomeScreen.route
-//        ) {
-//            HomeScreen(
-//                navHostController = navHostController,
-//                onClick2Player = {
-//                    navHostController.navigate(Screen.ThemeSelectorScreen.createRoute("2p"))
-//                },
-//                onClickQuickMatch = {
-//                    navHostController.navigate(Screen.ThemeSelectorScreen.createRoute("quick"))
-//                },
-//                onClickSettingIcon = {}
-//            )
-//
-//        }
 
         composable(
             route = Screen.HomeScreen.route
@@ -94,7 +77,6 @@ fun NavigationGraph(
         }
         composable(route = Screen.QuickModeScreen.route) {
             QuickMatchFlipGameScreen(
-                viewModel =flipGameViewModel,
                 navHostController = navHostController,
                 onClickBack = {
                     navHostController.navigate(Screen.HomeScreen.route){
