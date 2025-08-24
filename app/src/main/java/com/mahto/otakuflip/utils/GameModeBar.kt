@@ -1,5 +1,6 @@
 package com.mahto.otakuflip.utils
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -35,6 +36,9 @@ import kotlin.math.abs
 import androidx.compose.foundation.layout.Box
 
 import androidx.compose.ui.text.style.TextAlign
+import com.mahto.otakuflip.ui.theme.EasyModeColor
+import com.mahto.otakuflip.ui.theme.HardModeColor
+import com.mahto.otakuflip.ui.theme.MediumModeColor
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -123,15 +127,25 @@ fun GameModeBar(
 
         Spacer(Modifier.height(32.dp))
         Box() {
-
             CustomSlider2(
                 progress = sliderState.value,
                 onChange = { value ->
                     sliderState.value = value
-                    when (value) {
-                        in 0f..0.4f -> onModeChange( GAMEMODE.EASY_MODE)
-                        in 0.4f..0.6f -> onModeChange(GAMEMODE.MEDIUM_MODE)
-                        else -> onModeChange(GAMEMODE.HARD_MODE)
+
+                },
+                onChange2 = { value->
+                    val newMode = when (value) {
+                        in 0f..0.4f -> GAMEMODE.EASY_MODE
+                        in 0.4f..0.6f -> GAMEMODE.MEDIUM_MODE
+                        else -> GAMEMODE.HARD_MODE
+                    }
+                    sliderState.value = when(newMode){
+                        GAMEMODE.EASY_MODE -> 0f
+                        GAMEMODE.HARD_MODE -> 1f
+                        GAMEMODE.MEDIUM_MODE -> 0.5f
+                    }
+                    if (newMode != currentMode) {
+                        onModeChange(newMode)
                     }
                 },
             )
@@ -144,14 +158,26 @@ fun GameModeBar(
 @Composable
 fun CustomSlider2(
     progress: Float, // 0f..1f
-    onChange: (Float) -> Unit
+    onChange: (Float) -> Unit,
+    onChange2: (Float) -> Unit,
 ) {
     val trackHeight = 32.dp
     val thumbRadius = 15.dp
 
-    var isPressed by remember { mutableStateOf(false) }
+    var isPressed by remember { mutableStateOf<Boolean?>(null) }
 
+    val targetColor = when (progress) {
+        in 0f..0.4f -> EasyModeColor
+        in 0.4f..0.6f -> MediumModeColor
+        else -> HardModeColor
+    }
 
+    val animatedColor by animateColorAsState(
+        targetValue = targetColor,
+        animationSpec = tween(durationMillis = 600) // smooth transition
+    )
+
+    var newProgress by remember { mutableStateOf(0f) }
     val infiniteTransition = rememberInfiniteTransition("infinite")
     val animatedThumbRadius = infiniteTransition.animateFloat(
         initialValue = thumbRadius.value*2.7f,
@@ -161,6 +187,13 @@ fun CustomSlider2(
             repeatMode = RepeatMode.Reverse,
         )
     )
+    LaunchedEffect(isPressed) {
+        isPressed?.let {
+            if(!it){
+                onChange2(newProgress)
+            }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -169,18 +202,26 @@ fun CustomSlider2(
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { offset ->
+                        isPressed = true
                         val newValue = (offset.x / size.width).coerceIn(0f, 1f)
                         onChange(newValue)
+                        newProgress = newValue
                     },
+
                     onDrag = { change, _ ->
                         val newValue = (change.position.x / size.width).coerceIn(0f, 1f)
                         onChange(newValue)
+                        newProgress = newValue
                     },
+                    onDragEnd = {
+                        isPressed = false
+                    },
+                    onDragCancel = {
+                        isPressed = false
+                    }
 
                 )
-                detectTapGestures(
 
-                )
 
             }
     ) {
@@ -199,12 +240,12 @@ fun CustomSlider2(
             // Progress
             drawRoundRect(
 //                topLeft = Offset(10f, 0f),
-
-                color = Color(
-                    red = (if (progress < 0.5) 2 * progress else 1f).coerceIn(0f, 0.9f),
-                    green = (if (progress < 0.5) 1f else 2 - 2 * progress).coerceIn(0f, 0.9f),
-                    blue = 0f
-                ),
+                color = targetColor,
+//                color = Color(
+//                    red = (if (progress < 0.5) 2 * progress else 1f).coerceIn(0f, 0.9f),
+//                    green = (if (progress < 0.5) 1f else 2 - 2 * progress).coerceIn(0f, 0.9f),
+//                    blue = 0f
+//                ),
                 size = Size(recWidth * progress, trackHeight.toPx()),
                 cornerRadius = CornerRadius(trackHeight.toPx() / 2)
             )

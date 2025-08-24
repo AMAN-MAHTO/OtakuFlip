@@ -1,5 +1,6 @@
 package com.mahto.otakuflip.presentation
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -21,26 +22,24 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.mahto.otakuflip.data.GridSize
 import com.mahto.otakuflip.viewmodels.FlipGameViewModel
-
 @Composable
-fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel = hiltViewModel()) {
-    val state = viewModel.state.collectAsState().value
-
-    val cards = state.cards
-    val gridColumn = when (viewModel.state.collectAsState().value.uniqueCards) {
+fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel) {
+    Log.d("jjk", "FlipGame: started")
+    val cards = viewModel.cards.collectAsState().value
+    val gridColumn = when (viewModel.uniqueCards.collectAsState().value) {
         GridSize.SMALL.uniqueCardsNumber -> GridSize.SMALL.column
         GridSize.MEDIUM.uniqueCardsNumber -> GridSize.MEDIUM.column
         GridSize.LARGE.uniqueCardsNumber-> GridSize.LARGE.column
@@ -55,258 +54,41 @@ fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel = hiltV
         1,
         0,
         1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-        1,
-        0,
-        1,
     )
+    val backBrush = remember {
+        Brush.linearGradient(listOf(Color(0xffFFDB2E), Color(0xffF99D32)))
+    }
+//    LazyVerticalGrid(columns = GridCells.Fixed(6)) {
+//        itemsIndexed(cards) { index, card ->
+//            Card {
+//                Text(card.toString())
+////                Image(
+////                    painter = painterResource(card.imageId),
+////                    contentDescription = "",
+////                    modifier = Modifier.padding(4.dp)
+////                )
+//
+//            }
+//
+//        }
+//    }
     LazyVerticalGrid(
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = if(gridColumn == 4) 8.dp else 1.dp),
         columns = GridCells.Fixed(gridColumn),
         modifier = modifier.padding(8.dp)
     ) {
-        itemsIndexed(cards) {index, card ->
-
-                val rotation = animateFloatAsState(
+        itemsIndexed(cards, key = {_, card -> card.id}) {index, card ->
+                val rotation by animateFloatAsState(
                     targetValue = if (card.isFlipped) 180f else 0f,
                     animationSpec = tween(400),
                     label = "card-rotation"
                 )
-                val visibility = animateFloatAsState(
+                val visibility by animateFloatAsState(
                     targetValue = if (card.isGone) 0f else 1f,
                     animationSpec = tween(durationMillis = 600),
                     label = "cutOffset"
                 )
                 val density = LocalDensity.current.density
-
                 Card(
                 border = BorderStroke(2.dp, Color.White),
                 shape = MaterialTheme.shapes.medium,
@@ -314,21 +96,15 @@ fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel = hiltV
                 modifier = Modifier
                     .padding(if(gridColumn < 6) 4.dp else 2.dp)
                     .aspectRatio(1f)
-                    .alpha(visibility.value)
+                    .alpha(visibility)
                     .graphicsLayer(
-                        rotationY = rotation.value,
-                        rotationZ = if (pattern[card.id] == 0) 2f else -2f
-                    ).shadow(
-                        elevation = 4.dp,
-                        shape = MaterialTheme.shapes.medium,
-                        clip = false
+                        rotationY = rotation,
+                        rotationZ = if (pattern[card.id%pattern.size] == 0) 2f else -2f
                     )
                     .clickable(
-                        enabled = rotation.value % 180f == 0f
+                        enabled = rotation % 180f == 0f
                     ) {
-                        viewModel.onClickCard(
-                            card
-                        )
+                        viewModel.onClickCard(card)
                     },
             ) {
                 Column(
@@ -338,34 +114,28 @@ fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel = hiltV
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (rotation.value >= 90f || card.isMatched) {
+                    if (
+                        rotation >= 90f
+                        ||
+                        card.isMatched) {
                         Image(
                             painter = painterResource(card.imageId),
                             contentDescription = "",
                             modifier = Modifier.padding(4.dp)
                         )
 
+
                     } else {
                         Box(
                             Modifier
                                 .fillMaxSize()
                                 .background(
-                                    brush = Brush.linearGradient(
-                                        listOf(
-                                            Color(
-                                                0xffFFDB2E
-                                            ), Color(0xffF99D32)
-                                        )
-                                    )
+                                    brush = backBrush
                                 )
                         )
                     }
                 }
-
-
             }
-
-
         }
     }
 }

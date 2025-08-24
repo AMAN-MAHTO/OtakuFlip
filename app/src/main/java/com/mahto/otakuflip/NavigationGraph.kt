@@ -15,6 +15,7 @@ import com.mahto.otakuflip.presentation.twoplayer.TwoPlayerFlipGameScreen
 import com.mahto.otakuflip.presentation.ThemeSelector.ThemeSelectorScreen
 import com.mahto.otakuflip.viewmodels.ThemeSelectorVM
 import com.mahto.otakuflip.presentation.home.HomeScreen2
+import com.mahto.otakuflip.presentation.offline.OfflineFlipGameScreen
 import com.mahto.otakuflip.presentation.quickmatch.QuickMatchFlipGameScreen
 import kotlinx.coroutines.delay
 
@@ -37,17 +38,15 @@ fun NavigationGraph(
     themeSelectorVM: ThemeSelectorVM = hiltViewModel()
 
 ) {
-    val animeTheme = themeSelectorVM.animeTheme.collectAsState().value
-    val selectedGameMode = themeSelectorVM.selectedMode.collectAsState().value
-//    LaunchedEffect(selectedGameMode) {
-//        delay(100)
-//        flipGameViewModel.startGame()
+//    val animeTheme = themeSelectorVM.animeTheme.collectAsState().value
+//    val selectedGameMode = themeSelectorVM.selectedMode.collectAsState().value
+//    LaunchedEffect(selectedGameMode, animeTheme) {
+//        flipGameViewModel.configureGame(animeTheme, selectedGameMode)
 //    }
 
     NavHost(navHostController,
         startDestination = startDestination,
      ) {
-
         composable(
             route = Screen.HomeScreen.route
         ) {
@@ -65,26 +64,59 @@ fun NavigationGraph(
         }
 
         composable(route = Screen.OtakuFlipScreen.route) {
-            TwoPlayerFlipGameScreen(navHostController = navHostController,
-                onCLickBack = {
+//            TwoPlayerFlipGameScreen(navHostController = navHostController,
+////                viewModel = flipGameViewModel,
+//                onCLickBack = {
+//                    navHostController.navigate(Screen.HomeScreen.route) {
+//                        popUpTo(0) {
+//                            inclusive = true
+//                        }
+//                    }
+//
+//
+//                }
+//            )
+            OfflineFlipGameScreen(
+                navHostController = navHostController,
+                onClickBack = {
                     navHostController.navigate(Screen.HomeScreen.route) {
                         popUpTo(0) {
                             inclusive = true
                         }
                     }
 
-                })
+
+                },
+                numberOfPlayer = 2
+            )
         }
         composable(route = Screen.QuickModeScreen.route) {
-            QuickMatchFlipGameScreen(
+//            QuickMatchFlipGameScreen(
+////                viewModel = flipGameViewModel,
+//                navHostController = navHostController,
+//                onClickBack = {
+//
+//                    navHostController.navigate(Screen.HomeScreen.route){
+//                        popUpTo(0){
+//                            inclusive = true
+//                        }
+//                    }
+//
+//                },
+//            )
+
+            OfflineFlipGameScreen(
                 navHostController = navHostController,
                 onClickBack = {
-                    navHostController.navigate(Screen.HomeScreen.route){
-                        popUpTo(0){
+                    navHostController.navigate(Screen.HomeScreen.route) {
+                        popUpTo(0) {
                             inclusive = true
                         }
                     }
+
+
                 },
+                numberOfPlayer = 1
             )
         }
 

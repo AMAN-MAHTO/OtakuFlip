@@ -23,11 +23,12 @@ fun AnimatedScoreText(modifier: Modifier = Modifier, score: Int? = 10) {
     val displayedScore = remember { mutableStateOf(0) }
     val transition = remember { androidx.compose.animation.core.Animatable(1f) }
     LaunchedEffect(score) {
-        transition.snapTo(1f)
-        transition.animateTo(0f, animationSpec = tween(durationMillis = 1000))
-        if (score != null) {
+        if (score != null && score != 0) {
+            transition.snapTo(1f)
+            transition.animateTo(0f, animationSpec = tween(durationMillis = 1000))
             displayedScore.value = score
         }
+
 
     }
     Column(modifier, horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
@@ -40,20 +41,21 @@ fun AnimatedScoreText(modifier: Modifier = Modifier, score: Int? = 10) {
                 color = Color.White
             )
         )
-        Text(
-            text = "+${score?.minus(displayedScore.value)}",
-            modifier = modifier.graphicsLayer(
-                translationY = -100f*( 1f- transition.value),
-
-                alpha = 1f * transition.value
-            ),
-
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontFamily = mochiyPopOne,
-                fontSize = 24.sp,
-                color = Color.White
+        if(score != null && score > 0){
+            Text(
+                text = "+${score?.minus(displayedScore.value)}",
+                modifier = modifier.graphicsLayer(
+                    translationY = -100f * (1f - transition.value),
+                    alpha = 1f * transition.value
+                ),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = mochiyPopOne,
+                    fontSize = 20.sp,
+                    color = Color.White
+                )
             )
-        )
+        }
+
 
     }
 

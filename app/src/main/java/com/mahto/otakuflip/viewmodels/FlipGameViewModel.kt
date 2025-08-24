@@ -1,5 +1,6 @@
 package com.mahto.otakuflip.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -53,13 +54,23 @@ class FlipGameViewModel @Inject constructor(
         initialValue = AnimeTheme.NARUTO_THEME
     )
 
-     val gameMode: StateFlow<GAMEMODE> = repository.selectedMode.stateIn(
+     val _gameMode: StateFlow<GAMEMODE> = repository.selectedMode.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = GAMEMODE.EASY_MODE
     )
+//    private val _animeTheme = MutableStateFlow<AnimeTheme>(AnimeTheme.NARUTO_THEME)
+//    val animeTheme = _animeTheme.asStateFlow()
+//
+//    private val _gameMode = MutableStateFlow<GAMEMODE>(GAMEMODE.EASY_MODE)
+//    val gameMode = _gameMode.asStateFlow()
 
-    val _highScore = gameMode
+    private val _cards = MutableStateFlow<List<Card>>(listOf())
+    val cards = _cards.asStateFlow()
+
+    private val _cardsData = MutableStateFlow<List<Card>>(listOf())
+
+    val _highScore = _gameMode
         .filterNotNull()
         .distinctUntilChanged()
         .flatMapLatest { mode ->
@@ -71,11 +82,54 @@ class FlipGameViewModel @Inject constructor(
             initialValue = 0 // fallback if highScore not yet loaded
         )
 
-    private val _state = MutableStateFlow(FlipCardsState())
-    val state: StateFlow<FlipCardsState> = _state.asStateFlow()
+
     private val _numberOfPlayers = mutableStateOf(1)
     fun numberOfPlayer(players: Int){
         _numberOfPlayers.value = players
+    }
+
+
+    private val _currentPlayer = MutableStateFlow(1)
+    val currentPlayer = _currentPlayer.asStateFlow()
+
+    private val _playerScore = MutableStateFlow(mapOf(1 to 0, 2 to 0))
+    val playerScore = _playerScore.asStateFlow()
+
+    private val _matchedCards = MutableStateFlow(0)
+    val matchedCards = _matchedCards.asStateFlow()
+
+
+    private val _uniqueCards = MutableStateFlow(GridSize.MEDIUM.uniqueCardsNumber)
+    val uniqueCards = _uniqueCards.asStateFlow()
+
+
+    private val _firstFlippedCard = MutableStateFlow<Card?>(null)
+    val firstFlippedCard = _firstFlippedCard.asStateFlow()
+
+    private val _isCardMatching = MutableStateFlow(false)
+    val isCardMatching = _isCardMatching.asStateFlow()
+
+    private val _timeElapsed = MutableStateFlow(0)
+    val timeElapsed = _timeElapsed.asStateFlow()
+
+
+
+
+    val _isloading = mutableStateOf(false)
+    fun startGame() {
+        _isloading.value =false
+        firstCLick.value = false
+        timerJob?.cancel()
+        restartTimer()
+        val images = _animeTheme.value.images
+        val randomImages = images.shuffled().take(_gameMode.value.gridSize.uniqueCardsNumber)
+        _cards.value = (randomImages + randomImages).shuffled().mapIndexed { index, image ->
+            Card(id = index, imageId = image)
+        }
+        _playerScore.value = mapOf(1 to 0, 2 to 0)
+        _matchedCards.value = 0
+        _uniqueCards.value = _gameMode.value.gridSize.uniqueCardsNumber
+        _isloading.value = true
     }
 
     private val firstCLick = mutableStateOf(false)
@@ -84,7 +138,7 @@ class FlipGameViewModel @Inject constructor(
     val timeTaken = _timeTaken
 
     fun onGameEnd(){
-        _timeTaken.value = _state.value.timeElapsed
+        _timeTaken.value = _timeElapsed.value
         timerJob?.cancel()
         restartTimer()
         firstCLick.value = false
@@ -92,10 +146,10 @@ class FlipGameViewModel @Inject constructor(
     }
     fun updateHighScore(){
         if(_numberOfPlayers.value == 1){
-            state.value.playerScore[1]?.let {
+            _playerScore.value[1]?.let {
                 if(it > _highScore.value){
                     viewModelScope.launch {
-                        repository.setHighScore(gameMode.value, it)
+                        repository.setHighScore(_gameMode.value, it)
                     }
 
                 }
@@ -111,12 +165,12 @@ class FlipGameViewModel @Inject constructor(
         timerJob = viewModelScope.launch {
             while(true){
                 delay(1000)
-                _state.update { it.copy(timeElapsed = it.timeElapsed+1)  }
+                _timeElapsed.update { it+1  }
             }
         }
     }
     fun restartTimer(){
-        _state.update { it.copy(timeElapsed  = 0) }
+        _timeElapsed.update {  0 }
     }
 
     override fun onCleared() {
@@ -125,53 +179,29 @@ class FlipGameViewModel @Inject constructor(
     }
 
 
-    fun startGame() {
-        firstCLick.value = false
-        timerJob?.cancel()
-        restartTimer()
-        val images = _animeTheme.value.images
-        val randomImages = images.shuffled().take(gameMode.value.gridSize.uniqueCardsNumber)
-        val cards  = (randomImages + randomImages).shuffled().mapIndexed { index, image ->
-            Card(id = index, imageId = image)
-        }
-
-        _state.update {
-            it.copy(
-                cards = cards.toMutableList(),
-                currentPlayer = 1,
-                playerScore = mapOf(1 to 0, 2 to 0),
-                matchedCards = 0,
-                firstFlippedCard = null,
-                isCardMatching = false,
-                uniqueCards = gameMode.value.gridSize.uniqueCardsNumber
-            )
-        }
-    }
-
     fun onClickCard(card: Card) {
-        val currentState = _state.value
         if(!firstCLick.value ){
             startTimer()
             firstCLick.value = true
         }
 
-        if (currentState.isCardMatching || card.isMatched || card.isFlipped) return
+        if (_isCardMatching.value || card.isMatched || card.isFlipped) return
 
-        val updatedCards = currentState.cards.toMutableList()
+        val updatedCards = _cards.value.toMutableList()
         val index = updatedCards.indexOfFirst { it.id == card.id }
         updatedCards[index] = updatedCards[index].copy(isFlipped = true)
 
-        _state.update {
-            it.copy(cards = updatedCards)
+        _cards.update {
+            updatedCards
         }
 
-        val firstCard = _state.value.firstFlippedCard
+        val firstCard = _firstFlippedCard.value
         if (firstCard == null) {
-            _state.update {
-                it.copy(firstFlippedCard = updatedCards[index])
+            _firstFlippedCard.update {
+                updatedCards[index]
             }
         } else {
-            _state.update { it.copy(isCardMatching = true) }
+            _isCardMatching.update { true }
 
             val secondCard = updatedCards[index]
 
@@ -180,14 +210,17 @@ class FlipGameViewModel @Inject constructor(
 
                 if (firstCard.imageId == secondCard.imageId) {
                     matchingCards(firstCard, secondCard)
-                    updateScore(_state.value.currentPlayer)
+                    updateScore(_currentPlayer.value)
                 } else {
                     unMatchedCards(firstCard, secondCard)
                     switchPlayer()
                 }
 
-                _state.update {
-                    it.copy(firstFlippedCard = null, isCardMatching = false)
+                _isCardMatching.update {
+                    false
+                }
+                _firstFlippedCard.update {
+                    null
                 }
             }
         }
@@ -201,60 +234,62 @@ class FlipGameViewModel @Inject constructor(
     }
 
     private fun matchingCards(card1: Card, card2: Card) {
-        val updatedCards = _state.value.cards.toMutableList()
+        val updatedCards = _cards.value.toMutableList()
         val idx1 = updatedCards.indexOfFirst { it.id == card1.id }
         val idx2 = updatedCards.indexOfFirst { it.id == card2.id }
 
         updatedCards[idx1] = updatedCards[idx1].copy(isMatched = true, beginCut = true)
         updatedCards[idx2] = updatedCards[idx2].copy(isMatched = true, beginCut = true)
 
-        _state.update {
-            it.copy(cards = updatedCards)
+        _cards.update {
+            updatedCards
         }
 
         viewModelScope.launch {
             delay(400)
 
-            val cutCards = _state.value.cards.toMutableList()
+            val cutCards = _cards.value.toMutableList()
             cutCards[idx1] = cutCards[idx1].copy(isGone = true)
             cutCards[idx2] = cutCards[idx2].copy(isGone = true)
 
-            _state.update {
-                it.copy(cards = cutCards, matchedCards = it.matchedCards + 1)
+            _cards.update {
+               cutCards
+            }
+            _matchedCards.update {
+                it + 1
             }
         }
     }
 
     private fun unMatchedCards(card1: Card, card2: Card) {
         _combo.value = 1
-        val updatedCards = _state.value.cards.toMutableList()
+        val updatedCards = _cards.value.toMutableList()
         val idx1 = updatedCards.indexOfFirst { it.id == card1.id }
         val idx2 = updatedCards.indexOfFirst { it.id == card2.id }
 
         updatedCards[idx1] = updatedCards[idx1].copy(isFlipped = false)
         updatedCards[idx2] = updatedCards[idx2].copy(isFlipped = false)
 
-        _state.update {
-            it.copy(cards = updatedCards)
+        _cards.update {
+            updatedCards
         }
     }
 
     private fun switchPlayer() {
         if(_numberOfPlayers.value == 2){
-            val currentPlayer = _state.value.currentPlayer
-            _state.update {
-                it.copy(currentPlayer = if (currentPlayer == 1) 2 else 1)
+            val currentPlayer = _currentPlayer.value
+            _currentPlayer.update {
+                if (currentPlayer == 1) 2 else 1
             }
         }
 
     }
 
     private fun updateScore(player: Int) {
-        val newScoreMap = _state.value.playerScore.toMutableMap()
+        val newScoreMap = _playerScore.value.toMutableMap()
         newScoreMap[player] = (newScoreMap[player] ?: 0) + 10*_combo.value
         _combo.value = _combo.value + 1
-        _state.update {
-            it.copy(playerScore = newScoreMap)
+        _playerScore.update { newScoreMap
         }
         updateHighScore()
     }

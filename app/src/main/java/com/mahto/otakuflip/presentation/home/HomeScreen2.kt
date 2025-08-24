@@ -7,8 +7,10 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.shadow
 
@@ -54,6 +58,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mahto.otakuflip.ui.theme.CustomOrange
 import com.mahto.otakuflip.utils.ANimatedCardButton
 import com.mahto.otakuflip.viewmodels.ThemeSelectorVM
 import com.mahto.otakuflip.utils.GameModeBar
@@ -110,7 +115,11 @@ fun HomeScreen2(
             targetState = animeTheme.bgImgFull,
             animationSpec = tween(100)
         ) {
-            Image(painter = painterResource(it), contentDescription = "bg", contentScale = ContentScale.FillBounds)
+            Image(
+                painter = painterResource(it),
+                contentDescription = "bg",
+                contentScale = ContentScale.FillBounds
+            )
 
         }
         Box(
@@ -127,7 +136,7 @@ fun HomeScreen2(
             ) {
                 AnimatedIconButton(
                     icon = Icons.Default.Settings,
-                    backgroundColor = Color(0xFFf99d32),
+                    backgroundColor = CustomOrange,
                     borderColor = Color.White,
                     shape = RoundedCornerShape(50),
                     onClick = { onClickSettingIcon() }
@@ -148,7 +157,9 @@ fun HomeScreen2(
             }
 
             Column(
-                Modifier.align(Alignment.BottomCenter).padding(bottom = 32.dp),
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 LazyRow(
@@ -160,15 +171,14 @@ fun HomeScreen2(
                 ) {
                     itemsIndexed(listAnimeTheme) { index, item ->
                         val animatedSize by animateDpAsState(
-                            targetValue = if(animeTheme == item.animeTheme) 80.dp else 70.dp,
+                            targetValue = if (animeTheme == item.animeTheme) 80.dp else 70.dp,
                             animationSpec = spring(
                                 dampingRatio = Spring.DampingRatioMediumBouncy,
                                 stiffness = Spring.StiffnessLow
                             ),
                         )
-
-                        Column (
-                        ){
+                        Column(
+                        ) {
                             Card(
                                 border =
                                     BorderStroke(
@@ -192,7 +202,10 @@ fun HomeScreen2(
                                         shape = MaterialTheme.shapes.medium,
                                         clip = false
                                     )
-                                    .clickable {
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) {
                                         viewModel.setAnimeTheme(item.animeTheme)
                                     },
                             ) {
@@ -206,7 +219,8 @@ fun HomeScreen2(
                                     Image(
                                         painter = painterResource(item.imageId),
                                         contentDescription = "",
-                                        modifier = Modifier.padding(4.dp)
+                                        modifier = Modifier.padding(4.dp),
+                                        contentScale = ContentScale.Fit
                                     )
                                 }
                             }
@@ -218,27 +232,34 @@ fun HomeScreen2(
 
                 Spacer(Modifier.height(48.dp))
 
-                GameModeBar(modifier = Modifier.padding(horizontal = 32.dp), currentMode =  selectedMode, onModeChange = {viewModel.setGameMode(it)})
+                GameModeBar(
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                    currentMode = selectedMode,
+                    onModeChange = { viewModel.setGameMode(it) })
                 Spacer(Modifier.height(8.dp))
 
                 AppText(
                     text = "HighScore: ${viewModel._highScore.collectAsState().value}",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp)
                 )
 
                 Spacer(Modifier.height(32.dp))
                 Column {
                     Spacer(Modifier.height(8.dp))
-                    ANimatedCardButton (
+                    ANimatedCardButton(
                         onClick = onClickQuickMatch,
                         pressedScale = 0.95f
                     ) {
                         AppText(
                             "Quick Match",
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(16.dp).fillMaxWidth()
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
                         )
                     }
                     Spacer(Modifier.height(24.dp))
@@ -246,7 +267,9 @@ fun HomeScreen2(
                         AppText(
                             "Friend",
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(16.dp).fillMaxWidth()
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
                         )
                     }
 

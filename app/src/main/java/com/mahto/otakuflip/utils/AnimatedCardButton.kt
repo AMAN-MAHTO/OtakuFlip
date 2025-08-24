@@ -1,4 +1,3 @@
-
 package com.mahto.otakuflip.utils
 
 import androidx.compose.animation.core.Spring
@@ -33,6 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.mahto.otakuflip.ui.theme.CustomOrange
 
 
 @Composable
@@ -40,52 +40,57 @@ fun ANimatedCardButton(
 
     pressedScale: Float = 0.85f,
     onClick: () -> Unit,
-    content: @Composable ()->Unit,
+    content: @Composable () -> Unit,
 ) {
     var isPressed by remember { mutableStateOf(false) }
 
     val animatedScale by animateFloatAsState(
         targetValue = if (isPressed) pressedScale else 1f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow),
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
         label = "IconButtonPressAnim"
     )
-    Box(Modifier.pointerInput(Unit) {
-        detectTapGestures(
-            onPress = {
-                isPressed = true
-                tryAwaitRelease()
-                isPressed = false
-            }
-        )
-    } .graphicsLayer(
-        scaleX = animatedScale,
-        scaleY = animatedScale,
-        transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
-    )) {
-
-        Card(
-                shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = Color(0xffF99D32)),
-        modifier = Modifier
-            .padding(horizontal = 32.dp)
-            .fillMaxWidth()
-            .shadow(10.dp, MaterialTheme.shapes.medium, false)
-           .pointerInput(Unit) {
+    Box(
+        Modifier
+            .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
                         isPressed = true
                         tryAwaitRelease()
                         isPressed = false
-
-                    },
-                    onTap = {
-                        onClick()
                     }
                 )
-            },
-        border = BorderStroke(2.dp, Color.White),
-        elevation = CardDefaults.elevatedCardElevation(5.dp),
-        ){
+            }
+            .graphicsLayer(
+                scaleX = animatedScale,
+                scaleY = animatedScale,
+                transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
+            )) {
+
+        Card(
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(containerColor = CustomOrange),
+            modifier = Modifier
+                .padding(horizontal = 32.dp)
+                .fillMaxWidth()
+                .shadow(10.dp, MaterialTheme.shapes.medium, false)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onPress = {
+                            isPressed = true
+                            tryAwaitRelease()
+                            isPressed = false
+                            onClick()
+
+                        },
+
+                        )
+                },
+            border = BorderStroke(2.dp, Color.White),
+            elevation = CardDefaults.elevatedCardElevation(5.dp),
+        ) {
             content()
         }
     }

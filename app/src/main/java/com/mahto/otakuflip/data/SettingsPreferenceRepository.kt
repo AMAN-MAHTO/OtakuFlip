@@ -33,14 +33,15 @@ sealed class AnimeTheme(
 ) {
     object NARUTO_THEME : AnimeTheme(
         "naruto_theme", listOf(
-            R.drawable.n1, R.drawable.n2, R.drawable.n4, R.drawable.n5,
+            R.drawable.n1, R.drawable.n2, R.drawable.n5, R.drawable.n4,
             R.drawable.n6, R.drawable.n7, R.drawable.n8, R.drawable.n9,
             R.drawable.n10, R.drawable.n11, R.drawable.n12, R.drawable.n13,
             R.drawable.n15, R.drawable.n16, R.drawable.n17, R.drawable.n18,
-            R.drawable.n19, R.drawable.n20, R.drawable.n21, R.drawable.n22,
+            R.drawable.n20, R.drawable.n21, R.drawable.n22,
             R.drawable.n23, R.drawable.n24, R.drawable.n25, R.drawable.n26,
             R.drawable.n27, R.drawable.n28, R.drawable.n29, R.drawable.n30,
             R.drawable.n31, R.drawable.n32, R.drawable.n33, R.drawable.n34,
+            R.drawable.n35,R.drawable.n36,R.drawable.n37,R.drawable.n38
 
         ),
         bgImgFull = R.drawable.bgnf
