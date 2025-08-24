@@ -1,10 +1,15 @@
 package com.mahto.otakuflip.viewmodels
 
+import android.app.Application
+import android.media.AudioAttributes
+import android.media.SoundPool
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mahto.otakuflip.R
 import com.mahto.otakuflip.data.AnimeTheme
 import com.mahto.otakuflip.data.GAMEMODE
 import com.mahto.otakuflip.data.SettingsPreferenceRepository
+import com.mahto.otakuflip.data.SoundManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ThemeSelectorVM @Inject constructor(
+    private val soundManager: SoundManager,
     private val repository: SettingsPreferenceRepository
 ) : ViewModel() {
 
@@ -30,6 +36,8 @@ class ThemeSelectorVM @Inject constructor(
 
 
     fun setAnimeTheme(themeName: AnimeTheme){
+        soundManager.playSound("flip")
+
         viewModelScope.launch {
             repository.setAnimeTheme(themeName)
 
@@ -59,5 +67,6 @@ class ThemeSelectorVM @Inject constructor(
             repository.setGameMode(gamemode)
         }
     }
+
 
 }

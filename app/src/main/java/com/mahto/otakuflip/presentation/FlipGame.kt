@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.mahto.otakuflip.data.GridSize
 import com.mahto.otakuflip.viewmodels.FlipGameViewModel
+
 @Composable
 fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel) {
     Log.d("jjk", "FlipGame: started")
@@ -42,7 +43,7 @@ fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel) {
     val gridColumn = when (viewModel.uniqueCards.collectAsState().value) {
         GridSize.SMALL.uniqueCardsNumber -> GridSize.SMALL.column
         GridSize.MEDIUM.uniqueCardsNumber -> GridSize.MEDIUM.column
-        GridSize.LARGE.uniqueCardsNumber-> GridSize.LARGE.column
+        GridSize.LARGE.uniqueCardsNumber -> GridSize.LARGE.column
         else -> GridSize.SMALL.column // default value or handle appropriately00000000000
     }
     val pattern = listOf(
@@ -73,33 +74,37 @@ fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel) {
 //        }
 //    }
     LazyVerticalGrid(
-        contentPadding = PaddingValues(vertical = 8.dp, horizontal = if(gridColumn == 4) 8.dp else 1.dp),
+        contentPadding = PaddingValues(
+            vertical = 8.dp,
+            horizontal = if (gridColumn == 4) 8.dp else 1.dp
+        ),
         columns = GridCells.Fixed(gridColumn),
         modifier = modifier.padding(8.dp)
     ) {
-        itemsIndexed(cards, key = {_, card -> card.id}) {index, card ->
-                val rotation by animateFloatAsState(
-                    targetValue = if (card.isFlipped) 180f else 0f,
-                    animationSpec = tween(400),
-                    label = "card-rotation"
-                )
-                val visibility by animateFloatAsState(
-                    targetValue = if (card.isGone) 0f else 1f,
-                    animationSpec = tween(durationMillis = 600),
-                    label = "cutOffset"
-                )
-                val density = LocalDensity.current.density
-                Card(
+        itemsIndexed(cards, key = { _, card -> card.id }) { index, card ->
+            val rotation by animateFloatAsState(
+                targetValue = if (card.isFlipped) 180f else 0f,
+                animationSpec = tween(400),
+                label = "card-rotation"
+            )
+
+            val visibility by animateFloatAsState(
+                targetValue = if (card.isGone) 0f else 1f,
+                animationSpec = tween(durationMillis = 600),
+                label = "cutOffset"
+            )
+            val density = LocalDensity.current.density
+            Card(
                 border = BorderStroke(2.dp, Color.White),
                 shape = MaterialTheme.shapes.medium,
                 elevation = CardDefaults.elevatedCardElevation(5.dp),
                 modifier = Modifier
-                    .padding(if(gridColumn < 6) 4.dp else 2.dp)
+                    .padding(if (gridColumn < 6) 4.dp else 2.dp)
                     .aspectRatio(1f)
                     .alpha(visibility)
                     .graphicsLayer(
                         rotationY = rotation,
-                        rotationZ = if (pattern[card.id%pattern.size] == 0) 2f else -2f
+                        rotationZ = if (pattern[card.id % pattern.size] == 0) 2f else -2f
                     )
                     .clickable(
                         enabled = rotation % 180f == 0f
@@ -117,7 +122,8 @@ fun FlipGame(modifier: Modifier = Modifier, viewModel: FlipGameViewModel) {
                     if (
                         rotation >= 90f
                         ||
-                        card.isMatched) {
+                        card.isMatched
+                    ) {
                         Image(
                             painter = painterResource(card.imageId),
                             contentDescription = "",

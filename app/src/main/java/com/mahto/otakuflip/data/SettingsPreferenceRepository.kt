@@ -3,6 +3,7 @@ package com.mahto.otakuflip.data
 import androidx.compose.ui.graphics.Color
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -18,6 +19,7 @@ object SettingKeys {
     val HIGH_SCORE = intPreferencesKey("high_score")
 
     val SELECTED_MODE = stringPreferencesKey("selected_mode")
+    val IS_MUTED = booleanPreferencesKey("is_muted")
 
     fun gridSizeKey(mode: GAMEMODE) = intPreferencesKey(mode.name + "_grid_size")
     fun highScoreKey(mode: GAMEMODE) = intPreferencesKey(mode.name + "_high_score")
@@ -161,6 +163,12 @@ class SettingsPreferenceRepository
 
     suspend fun setAnimeTheme(animeTheme: AnimeTheme) {
         dataStore.edit { it[SettingKeys.ANIME_THEME] = animeTheme.name }
+    }
+
+    val isMuted: Flow<Boolean> = dataStore.data
+        .map { it[SettingKeys.IS_MUTED] ?: false}
+    suspend fun setIsMuted(isMuted: Boolean){
+        dataStore.edit { it[SettingKeys.IS_MUTED] = isMuted }
     }
 
 }

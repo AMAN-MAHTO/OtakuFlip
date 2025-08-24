@@ -1,13 +1,19 @@
 package com.mahto.otakuflip.viewmodels
 
+import android.app.Application
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mahto.otakuflip.R
 import com.mahto.otakuflip.data.AnimeTheme
 import com.mahto.otakuflip.data.GAMEMODE
 import com.mahto.otakuflip.data.GridSize
 import com.mahto.otakuflip.data.SettingsPreferenceRepository
+import com.mahto.otakuflip.data.SoundManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -44,6 +50,7 @@ data class FlipCardsState(
     )
 @HiltViewModel
 class FlipGameViewModel @Inject constructor(
+    private val soundManager: SoundManager,
     private val repository: SettingsPreferenceRepository
 ) : ViewModel() {
     private val _combo = mutableStateOf(1)
@@ -59,11 +66,8 @@ class FlipGameViewModel @Inject constructor(
         started = SharingStarted.Eagerly,
         initialValue = GAMEMODE.EASY_MODE
     )
-//    private val _animeTheme = MutableStateFlow<AnimeTheme>(AnimeTheme.NARUTO_THEME)
-//    val animeTheme = _animeTheme.asStateFlow()
-//
-//    private val _gameMode = MutableStateFlow<GAMEMODE>(GAMEMODE.EASY_MODE)
-//    val gameMode = _gameMode.asStateFlow()
+
+
 
     private val _cards = MutableStateFlow<List<Card>>(listOf())
     val cards = _cards.asStateFlow()
@@ -176,6 +180,8 @@ class FlipGameViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         timerJob?.cancel()
+        soundManager.release()
+
     }
 
 
@@ -190,7 +196,7 @@ class FlipGameViewModel @Inject constructor(
         val updatedCards = _cards.value.toMutableList()
         val index = updatedCards.indexOfFirst { it.id == card.id }
         updatedCards[index] = updatedCards[index].copy(isFlipped = true)
-
+        soundManager.playSound("flip")
         _cards.update {
             updatedCards
         }
@@ -206,7 +212,7 @@ class FlipGameViewModel @Inject constructor(
             val secondCard = updatedCards[index]
 
             viewModelScope.launch {
-                delay(1000)
+                delay(800)
 
                 if (firstCard.imageId == secondCard.imageId) {
                     matchingCards(firstCard, secondCard)

@@ -17,6 +17,7 @@ import com.mahto.otakuflip.viewmodels.ThemeSelectorVM
 import com.mahto.otakuflip.presentation.home.HomeScreen2
 import com.mahto.otakuflip.presentation.offline.OfflineFlipGameScreen
 import com.mahto.otakuflip.presentation.quickmatch.QuickMatchFlipGameScreen
+import com.mahto.otakuflip.presentation.setting.SettingScreen
 import kotlinx.coroutines.delay
 
 sealed class Screen(val route: String) {
@@ -26,6 +27,7 @@ sealed class Screen(val route: String) {
     object ThemeSelectorScreen : Screen("theme_selector_screen/{source}") {
         fun createRoute(source: String) = "theme_selector_screen/$source"
     }
+    object SettingScreen: Screen("setting_screen")
 
 }
 
@@ -47,6 +49,19 @@ fun NavigationGraph(
     NavHost(navHostController,
         startDestination = startDestination,
      ) {
+
+        composable(route  = Screen.SettingScreen.route) {
+            SettingScreen(
+                onClickBack = {
+                    navHostController.navigate(Screen.HomeScreen.route) {
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+
         composable(
             route = Screen.HomeScreen.route
         ) {
@@ -58,7 +73,9 @@ fun NavigationGraph(
                 onClickQuickMatch = {
                     navHostController.navigate(Screen.QuickModeScreen.route)
                 },
-                onClickSettingIcon = {}
+                onClickSettingIcon = {
+                    navHostController.navigate(Screen.SettingScreen.route)
+                }
             )
 
         }
