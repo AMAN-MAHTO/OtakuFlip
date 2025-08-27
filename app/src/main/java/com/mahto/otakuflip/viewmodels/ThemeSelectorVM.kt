@@ -37,7 +37,7 @@ class ThemeSelectorVM @Inject constructor(
 
     fun setAnimeTheme(themeName: AnimeTheme){
         soundManager.playSound("flip")
-
+        if(themeName != animeTheme.value)
         viewModelScope.launch {
             repository.setAnimeTheme(themeName)
 

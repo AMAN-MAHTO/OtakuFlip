@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.mahto.otakuflip.R
@@ -20,6 +21,7 @@ object SettingKeys {
 
     val SELECTED_MODE = stringPreferencesKey("selected_mode")
     val IS_MUTED = booleanPreferencesKey("is_muted")
+    val VOLUME = floatPreferencesKey("volume")
 
     fun gridSizeKey(mode: GAMEMODE) = intPreferencesKey(mode.name + "_grid_size")
     fun highScoreKey(mode: GAMEMODE) = intPreferencesKey(mode.name + "_high_score")
@@ -31,7 +33,8 @@ sealed class AnimeTheme(
     val images: List<Int>,
     val bgColor: Color = Color(0xff3D5AC0),
     val bgImg: Int = R.drawable.akatsuki_logo,
-    val bgImgFull:Int = R.drawable.bgopf
+    val bgImgFull:Int = R.drawable.bgopf,
+    val bgMusic: Int = R.raw.naruto_bg
 ) {
     object NARUTO_THEME : AnimeTheme(
         "naruto_theme", listOf(
@@ -46,7 +49,8 @@ sealed class AnimeTheme(
             R.drawable.n35,R.drawable.n36,R.drawable.n37,R.drawable.n38
 
         ),
-        bgImgFull = R.drawable.bgnf
+        bgImgFull = R.drawable.bgnf,
+        bgMusic = R.raw.naruto_bg
     )
 
     object ONE_PIECE_THEME : AnimeTheme(
@@ -65,7 +69,8 @@ sealed class AnimeTheme(
             R.drawable.op56, R.drawable.op57, R.drawable.op58, R.drawable.op59, R.drawable.op60,
             R.drawable.op61,
         ),
-        bgImgFull = R.drawable.opbgf3
+        bgImgFull = R.drawable.opbgf3,
+        bgMusic = R.raw.one_piece_bg
     )
 
 //    object WIFU_THEME : AnimeTheme(
@@ -97,7 +102,8 @@ sealed class AnimeTheme(
         ),
         Color(0xff28AF74),
         R.drawable.bgds,
-        R.drawable.bgdsf
+        R.drawable.bgdsf,
+        bgMusic = R.raw.demon_slayer_bg
     )
     companion object{
         fun fromName(name: String) = when(name){
@@ -169,6 +175,11 @@ class SettingsPreferenceRepository
         .map { it[SettingKeys.IS_MUTED] ?: false}
     suspend fun setIsMuted(isMuted: Boolean){
         dataStore.edit { it[SettingKeys.IS_MUTED] = isMuted }
+    }
+
+    val volume: Flow<Float> = dataStore.data.map { it[SettingKeys.VOLUME] ?: 1f }
+    suspend fun setVolume(volume: Float){
+        dataStore.edit { it[SettingKeys.VOLUME] = volume }
     }
 
 }

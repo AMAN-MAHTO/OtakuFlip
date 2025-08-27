@@ -3,7 +3,9 @@ package com.mahto.otakuflip.data
 import android.app.Application
 import android.content.Context
 import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.media.SoundPool
+import android.util.Log
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.mahto.otakuflip.R
@@ -13,7 +15,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -28,7 +33,10 @@ class SoundManager @Inject constructor(
     private var isMuted: Boolean = false
     private var volume: Float = 1.0f
     private val scope = CoroutineScope(Dispatchers.IO)
+    private var animeTheme: AnimeTheme = AnimeTheme.NARUTO_THEME
 
+    private var mediaPlayer: MediaPlayer? = null
+    private var currentMusicId: Int? = null
 
     init {
         val audioAttribute = AudioAttributes.Builder()
@@ -45,31 +53,89 @@ class SoundManager @Inject constructor(
 //        soundMap["score"] = soundPool.load(application, R.raw.new_highscore, 1)
 
         repository.isMuted
-            .onEach { isMuted = it }
+            .onEach { isMuted = it
+            updateMusicVolume()}
             .launchIn(scope)
 
-//        repository.volumeFlow
-//            .onEach { volume = it }
+        repository.volume
+            .onEach { volume = it
+            updateMusicVolume()
+            }
+            .launchIn(scope)
+//
+//        repository.animeTheme
+//            .map { it.bgMusic }
+//            .distinctUntilChanged()
+//            .onEach { it->
+//                playBackgroundMusic(it)
+//            }
 //            .launchIn(scope)
+
+//        combine (
+//            repository.isMuted,
+//            repository.volume,
+//            repository.animeTheme.map { it.bgMusic } // just musicId, not whole object
+//        ) { muted, vol, musicId ->
+//            Triple(muted, vol, musicId)
+//        }
+//            .distinctUntilChanged() // prevent duplicate Triple emissions
+//            .onEach { (muted, vol, musicId) ->
+//                isMuted = muted
+//                volume = vol
+//
+//                // Update existing music volume
+//                updateMusicVolume()
+//
+//                // Change music only if theme changed
+//                if (currentMusicId != musicId) {
+//                    Log.d("jjk", "playBackgroundMusic: bgMusic")
+//
+//                    playBackgroundMusic(musicId)
+//                }
+//            }
+//            .launchIn(scope)
+
 
     }
 
     fun playSound(name: String) {
         soundMap[name]?.let { soundId ->
-            val v = if(isMuted) 0f else volume
+            val v = if (isMuted) 0f else volume
             soundPool.play(soundId, v, v, 1, 0, 1f)
         }
     }
-    fun toggleMute() {
-        isMuted = !isMuted
-    }
 
-    fun setVolume(newVolume: Float) {
-        volume = newVolume
+    private fun updateMusicVolume() {
+        mediaPlayer?.setVolume(
+            if (isMuted) 0f else volume,
+            if (isMuted) 0f else volume
+        )
+    }
+    fun playBackgroundMusic(musicId: Int) {
+        if(currentMusicId != null && musicId == currentMusicId)  {
+            updateMusicVolume()
+            return
+        }
+        currentMusicId = musicId
+
+        mediaPlayer?.release()
+        mediaPlayer = MediaPlayer.create(context, musicId)
+            .apply {
+                isLooping = true
+                setVolume(if (isMuted) 0f else volume, if (isMuted) 0f else volume)
+                start()
+                    Log.d("jjk", "playBackgroundMusic: bgMusic")
+
+            }
+
+
     }
 
     fun release() {
         soundPool.release()
+        mediaPlayer?.release()
+        mediaPlayer = null
+        currentMusicId = null
     }
 
 

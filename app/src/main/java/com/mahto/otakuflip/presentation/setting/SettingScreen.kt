@@ -31,7 +31,7 @@ fun SettingScreen(
     onClickBack: ()->Unit,
 ) {
     val isMuted = viewModel.isMuted.collectAsState().value
-    val volume = 0.5f
+    val volume = viewModel.volume.collectAsState().value
     val animeTheme = viewModel.animeTheme.collectAsState().value
 
     Box(Modifier.fillMaxSize()){
@@ -82,18 +82,18 @@ fun SettingScreen(
                     }
                 }
 
-                // 🔊 Volume slider
-//                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-//                    Text(text = "Volume: ${(volume * 100).toInt()}%")
-//                    Slider(
-//                        value = volume,
-//                        onValueChange = { newValue ->
-////                            viewModel.setVolume(newValue)
-//                                        },
-//                        valueRange = 0f..1f,
-//                        steps = 9 // 10 steps (0.1 each)
-//                    )
-//                }
+//                 🔊 Volume slider
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Volume: ${(volume * 100).toInt()}%")
+                    Slider(
+                        value = volume,
+                        onValueChange = { newValue ->
+                            viewModel.setVolume(newValue)
+                                        },
+                        valueRange = 0f..1f,
+                        steps = 9 // 10 steps (0.1 each)
+                    )
+                }
             }
 
 

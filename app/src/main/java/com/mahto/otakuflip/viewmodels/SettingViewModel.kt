@@ -38,10 +38,21 @@ private val repository: SettingsPreferenceRepository
         started = SharingStarted.Eagerly, // always active
     )
 
+    val volume: StateFlow<Float>  = repository.volume.stateIn(
+        scope = viewModelScope,
+        initialValue = 1f,
+        started = SharingStarted.Eagerly,
+    )
+
     fun setIsMuted(isMuted: Boolean){
         viewModelScope.launch {
             repository.setIsMuted(isMuted)
+        }
+    }
 
+    fun setVolume(volume: Float){
+        viewModelScope.launch {
+            repository.setVolume(volume)
         }
     }
 
